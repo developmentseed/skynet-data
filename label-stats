@@ -36,6 +36,7 @@ function write (tile, _, next) {
 }
 
 function end (cb) {
-  this.push(JSON.stringify(frequencies))
+  this.push('label,frequency\n')
+  frequencies.forEach((f, i) => this.push(i + ',' + f + '\n'))
   cb()
 }

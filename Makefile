@@ -23,6 +23,9 @@ data/labels/grayscale: data/labels/color
 	mkdir -p $@
 	for i in $(wildcard data/labels/color/*.png) ; do cat $$i | ./palette-to-grayscale $(CLASSES) > $@/`basename $$i` ; done
 
+data/labels/label-frequencies.csv: data/labels/color data/sample.txt
+	cat data/sample.txt | ./label-stats $(CLASSES) data/labels/color > $@
+
 data/images:
 	mkdir -p $@
 	cat data/sample.txt | ./download-images $(IMAGE_TILES) $@
