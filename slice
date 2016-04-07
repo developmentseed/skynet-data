@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+
+var path = require('path')
+var readSample = require('./lib/read-sample')
+var through = require('through2')
+
+var images = path.resolve(process.argv[2])
+var labels = path.resolve(process.argv[3])
+var start = parseInt(process.argv[4], 10)
+var end = parseInt(process.argv[5] || Infinity, 10)
+
+var count = 0
+
+readSample()
+.pipe(through.obj(function (tile, _, next) {
+  count++
+  if (count < start || count >= end) { return next() }
+  var filename = tile.join('-') + '.png'
+  this.push(path.join(images, filename) + ' ' + path.join(labels, filename) + '\n')
+  next()
+}))
+.pipe(process.stdout)
