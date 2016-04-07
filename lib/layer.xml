@@ -1,0 +1,9 @@
+  <Rule>
+    <Filter>FILTER ([mapnik::geometry_type] = 3)</Filter>
+    <LineSymbolizer stroke-width="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0"/>
+    <PolygonSymbolizer fill="COLOR" />
+  </Rule>
+  <Rule>
+    <Filter>FILTER ([mapnik::geometry_type] = 2)</Filter>
+    <LineSymbolizer stroke-width="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0" />
+  </Rule>

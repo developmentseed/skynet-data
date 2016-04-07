@@ -1,0 +1,29 @@
+{
+  "name": "skynet-data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Anand Thakker <vestibule@anandthakker.net> (http://anandthakker.net/)",
+  "license": "ISC",
+  "dependencies": {
+    "mbtiles": "^0.8.2",
+    "pngjs": "^2.2.0",
+    "queue-async": "^1.2.1",
+    "split": "^1.0.0",
+    "through2": "^2.0.1",
+    "tile-reduce": "^3.1.1",
+    "tilejson": "^1.0.1",
+    "tilelive": "^5.12.2",
+    "tilelive-vector": "^3.9.2"
+  },
+  "devDependencies": {
+    "eslint": "^2.7.0",
+    "eslint-config-standard": "^5.1.0",
+    "eslint-plugin-promise": "^1.1.0",
+    "eslint-plugin-standard": "^1.3.2"
+  }
+}

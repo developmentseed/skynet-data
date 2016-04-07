@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+var tilelive = require('tilelive')
+var queue = require('queue-async')
+var readSample = require('./lib/read-sample')
+var writeTile = require('./lib/write-tile')
+
+var input = process.argv[2] // tilelive uri
+tilelive.auto(input)
+var output = process.argv[3] // output dir
+
+tilelive.load(input, function (err, source) {
+  if (err) { throw err }
+
+  var q = queue(3) // limit the number of simulatenous requests
+
+  readSample()
+  .on('data', function (tile) {
+    q.defer(writeTile.bind(null, output, source, tile))
+  })
+  .on('end', function () {
+    q.awaitAll(function (err) {
+      if (err) { throw err }
+    })
+  })
+})
+

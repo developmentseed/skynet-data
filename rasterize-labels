@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var path = require('path')
+var Vector = require('tilelive-vector')
+require('mbtiles').registerProtocols(require('tilelive'))
+
+var style = require('./lib/style')
+var readSample = require('./lib/read-sample')
+var writeTile = require('./lib/write-tile')
+
+var input = path.resolve(process.argv[2]) // osm qa tiles mbtiles file
+var layers = require(path.resolve(process.argv[3])) // json file defining classes
+var output = process.argv[4] // output dir
+
+init(input, style(layers), function (err, vector) {
+  if (err) { throw err }
+  readSample()
+  .on('data', function (tile) {
+    writeTile(output, vector, tile)
+  })
+})
+
+function init (source, style, cb) {
+  /* eslint-disable no-new */
+  new Vector({
+    xml: style,
+    source: 'mbtiles://' + source
+  }, cb)
+}

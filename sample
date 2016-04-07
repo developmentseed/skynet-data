@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+var split = require('split')
+var lines = []
+
+// TODO: possibly use a tempfile so we don't have to buffer the whole list
+
+process.stdin
+.pipe(split())
+.on('data', function (line) { lines.push(line) })
+.on('end', function () {
+  var num = parseFloat(process.argv[2])
+  if (num < 1) {
+    // treat it like a sample rate instead of number of lines
+    num = Math.round(num * lines.length)
+  }
+
+  while (num-- > 0) {
+    console.log(lines[Math.floor(Math.random() * lines.length)])
+  }
+})
