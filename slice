@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var fs = require('fs')
 var path = require('path')
 var readSample = require('./lib/read-sample')
 var through = require('through2')
@@ -16,7 +17,17 @@ readSample()
   count++
   if (count < start || count >= end) { return next() }
   var filename = tile.join('-') + '.png'
-  this.push(path.join(images, filename) + ' ' + path.join(labels, filename) + '\n')
+  var image = path.join(images, filename)
+  var label = path.join(labels, filename)
+  if (!fs.existsSync(image)) {
+    console.error('Cannot find ' + image)
+    return next()
+  }
+  if (!fs.existsSync(label)) {
+    console.error('Cannot find ' + label)
+    return next()
+  }
+  this.push(image + ' ' + label + '\n')
   next()
 }))
 .pipe(process.stdout)
