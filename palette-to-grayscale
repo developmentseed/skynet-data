@@ -2,7 +2,7 @@
 
 var fs = require('fs')
 var PNG = require('pngjs').PNG
-var hex = require('rgb-hex')
+var createClassLookup = require('./lib/lookup-class')
 
 if (require.main === module) {
   var classData = JSON.parse(fs.readFileSync(process.argv[2]))
@@ -18,7 +18,7 @@ module.exports = convertIndexToGrayLevel
 // the gray value of each pixel is the class number.  Harder to inspect
 // visually, but easier to process programmatically
 function convertIndexToGrayLevel (output, input, classData) {
-  var classes = ['#000000'].concat(classData.map((x) => x.color))
+  var getClass = createClassLookup(classData)
 
   input.pipe(
     new PNG()
@@ -28,8 +28,7 @@ function convertIndexToGrayLevel (output, input, classData) {
           var r = (this.width * y + x) << 2
           var g = r + 1
           var b = r + 2
-          var color = '#' + hex(this.data[r], this.data[g], this.data[b])
-          var value = classes.indexOf(color)
+          var value = getClass(this.data[r], this.data[g], this.data[b])
           this.data[r] = this.data[g] = this.data[b] = value
         }
       }
