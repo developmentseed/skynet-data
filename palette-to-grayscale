@@ -11,6 +11,12 @@ if (require.main === module) {
 
 module.exports = convertIndexToGrayLevel
 
+// Most image libraries don't give easy access to the PNG palette index for
+// each pixel, giving you instead the rgb values. In our colored label images,
+// it's the index into the PNG palette that tells us which class a pixel
+// belongs to.  This converts such a colored image to a grayscale one where
+// the gray value of each pixel is the class number.  Harder to inspect
+// visually, but easier to process programmatically
 function convertIndexToGrayLevel (output, input, classData) {
   var classes = ['#000000'].concat(classData.map((x) => x.color))
 
@@ -23,8 +29,8 @@ function convertIndexToGrayLevel (output, input, classData) {
           var g = r + 1
           var b = r + 2
           var color = '#' + hex(this.data[r], this.data[g], this.data[b])
-          var gray = classes.indexOf(color)
-          this.data[r] = this.data[g] = this.data[b] = gray
+          var value = classes.indexOf(color)
+          this.data[r] = this.data[g] = this.data[b] = value
         }
       }
       this.pack().pipe(output)
