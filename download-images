@@ -16,7 +16,12 @@ tilelive.load(input, function (err, source) {
 
   readSample()
   .on('data', function (tile) {
-    q.defer(writeTile.bind(null, output, source, tile))
+    q.defer(function (done) {
+      writeTile(output, source, tile, function (err) {
+        if (err) { console.error(err) }
+        done()
+      })
+    })
   })
   .on('end', function () {
     q.awaitAll(function (err) {
