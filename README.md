@@ -41,11 +41,12 @@ consider using `tippecanoe-decode` to examine (geojson) contents of each tile.
 
 ### Labels
 
-Build label images: `make data/labels`.  Uses the `CLASSES` json file to set
-up the rendering of OSM data to images that represent per-pixel category
-labels.  See `classes/water-roads-buildings.json` for an example.  Rendering
-is with `mapnik`; see [the docs](https://github.com/mapnik/mapnik/wiki/Filter)
-for more on `filter` syntax.
+Build label images: `make data/labels/color` or `make data/labels/grayscale`.
+Uses the `CLASSES` json file to set up the rendering of OSM data to images that
+represent per-pixel category labels.  See `classes/water-roads-buildings.json`
+for an example.  Rendering is with `mapnik`; see [the
+docs](https://github.com/mapnik/mapnik/wiki/Filter) for more on `filter`
+syntax.
 
 ### Images
 

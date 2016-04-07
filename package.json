@@ -10,12 +10,13 @@
   "author": "Anand Thakker <vestibule@anandthakker.net> (http://anandthakker.net/)",
   "license": "ISC",
   "dependencies": {
+    "hex-rgb": "^1.0.0",
     "mbtiles": "^0.8.2",
     "pngjs": "^2.2.0",
     "queue-async": "^1.2.1",
+    "rgb-hex": "^1.0.0",
     "split": "^1.0.0",
     "through2": "^2.0.1",
-    "tile-reduce": "^3.1.1",
     "tilejson": "^1.0.1",
     "tilelive": "^5.12.2",
     "tilelive-vector": "^3.9.2"

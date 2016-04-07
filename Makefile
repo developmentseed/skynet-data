@@ -15,12 +15,22 @@ data/osm/%.mbtiles:
 data/sample.txt: data/osm/$(QA_TILES).mbtiles
 	tippecanoe-enumerate $^ | ./sample $(TRAIN_SIZE) > $@
 
-.PHONY: data/labels
-data/labels: data/sample.txt
+data/labels/color: data/sample.txt
 	mkdir -p $@
 	cat data/sample.txt | ./rasterize-labels data/osm/$(QA_TILES).mbtiles $(CLASSES) $@
 
-.PHONY: data/images
+data/labels/grayscale: data/labels/color
+	mkdir -p $@
+	for i in $(wildcard data/labels/color/*.png) ; do cat $$i | ./palette-to-grayscale $(CLASSES) > $@/`basename $$i` ; done
+
 data/images:
 	mkdir -p $@
 	cat data/sample.txt | ./download-images $(IMAGE_TILES) $@
+
+.PHONY: clean-labels clean-images clean
+clean-labels:
+	rm -rf data/labels
+clean-images:
+	rm -rf data/images
+clean: clean-images clean-labels
+	rm data/sample.txt

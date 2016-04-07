@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var PNG = require('pngjs').PNG
+var hex = require('rgb-hex')
+
+if (require.main === module) {
+  var classData = JSON.parse(fs.readFileSync(process.argv[2]))
+  convertIndexToGrayLevel(process.stdout, process.stdin, classData)
+}
+
+module.exports = convertIndexToGrayLevel
+
+function convertIndexToGrayLevel (output, input, classData) {
+  var classes = ['#000000'].concat(classData.map((x) => x.color))
+
+  input.pipe(
+    new PNG()
+    .on('parsed', function () {
+      for (var y = 0; y < this.height; y++) {
+        for (var x = 0; x < this.width; x++) {
+          var r = (this.width * y + x) << 2
+          var g = r + 1
+          var b = r + 2
+          var color = '#' + hex(this.data[r], this.data[g], this.data[b])
+          var gray = classes.indexOf(color)
+          this.data[r] = this.data[g] = this.data[b] = gray
+        }
+      }
+      this.pack().pipe(output)
+    })
+  )
+}
