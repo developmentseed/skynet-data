@@ -55,3 +55,8 @@ Download aerial images from a tiled source: `make data/images`
 Heads up: the default, Mapbox Satellite, will need you to set the
 `MapboxAccessToken` variable, and will cost you map views!
 
+### Preview
+
+Preview the generated data by opening up `preview.html?accessToken=<mapbox
+access token>` in a local web server.
+
