@@ -15,28 +15,36 @@ readSample()
 .pipe(through.obj(write, end))
 .pipe(process.stdout)
 
-var frequencies = []
+// start with zero for each class and bg
+var frequencies = classes.map((x) => 0).concat([0])
+var imageCounts = classes.map((x) => 0).concat([0])
 function write (tile, _, next) {
   var file = path.join(labels, tile.join('-') + '.png')
+  if (!fs.existsSync(file)) {
+    console.error('Missing file: ' + file)
+    return next()
+  }
   fs.createReadStream(file).pipe(new PNG()
     .on('parsed', function () {
+      var present = classes.map((x) => 0)
       for (var y = 0; y < this.height; y++) {
         for (var x = 0; x < this.width; x++) {
           var r = (this.width * y + x) << 2
           var g = r + 1
           var b = r + 2
           var index = getClass(this.data[r], this.data[g], this.data[b])
-          frequencies[index] = frequencies[index] || 0
           frequencies[index] += 1
+          present[index] = 1
         }
       }
+      present.forEach(function (x, i) { imageCounts[i] += x })
       next()
     })
   )
 }
 
 function end (cb) {
-  this.push('label,frequency\n')
-  frequencies.forEach((f, i) => this.push(i + ',' + f + '\n'))
+  this.push('label,frequency,image_count\n')
+  frequencies.forEach((f, i) => this.push([i, f, imageCounts[i]].join(',') + '\n'))
   cb()
 }
