@@ -1,5 +1,6 @@
 
 QA_TILES ?= planet
+DATA_TILES ?= data/osm/$(QA_TILES).mbtiles
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
 TRAIN_SIZE ?= 1000
 CLASSES ?= classes/water-roads-buildings.json
@@ -14,12 +15,12 @@ data/osm/%.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
-data/sample.txt: data/osm/$(QA_TILES).mbtiles
+data/sample.txt: $(DATA_TILES)
 	tippecanoe-enumerate $^ | ./sample $(TRAIN_SIZE) $(ZOOM_LEVEL) > $@
 
 data/labels/color: data/sample.txt
 	mkdir -p $@
-	cat data/sample.txt | ./rasterize-labels data/osm/$(QA_TILES).mbtiles $(CLASSES) $@
+	cat data/sample.txt | ./rasterize-labels $(DATA_TILES) $(CLASSES) $@
 
 data/labels/grayscale: data/labels/color
 	mkdir -p $@

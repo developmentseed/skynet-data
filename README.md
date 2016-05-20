@@ -25,10 +25,16 @@ listed):
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
 # which osm-qa tiles extract to download; e.g. united_states_of_america
 QA_TILES=planet
+# data tiles to use for rendering labels; defaults to osm-qa tiles extract specified by QA_TILES
+DATA_TILES ?= data/osm/$(QA_TILES).mbtiles
 # number of images (tiles) to sample
 TRAIN_SIZE=1000
 # define label classes output
 CLASSES=classes/water-roads-buildings.json
+# discard images whose ratio of labeled to unlabeled pixels is less than or equal to:
+LABEL_RATIO ?= 0
+# set this to a zoom higher than the data tiles' max zoom to get overzoomed label images
+ZOOM_LEVEL ?= ''
 ```
 
 ### Sample available tiles
