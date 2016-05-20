@@ -15,8 +15,11 @@ data/osm/%.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
-data/sample.txt: $(DATA_TILES)
-	tippecanoe-enumerate $^ | ./sample $(TRAIN_SIZE) $(ZOOM_LEVEL) > $@
+data/all_tiles.txt: $(DATA_TILES)
+	tippecanoe-enumerate $^ > $@
+
+data/sample.txt: data/all_tiles.txt
+	./sample $^ $(TRAIN_SIZE) $(ZOOM_LEVEL) > $@
 
 data/labels/color: data/sample.txt
 	mkdir -p $@
