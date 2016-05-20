@@ -24,8 +24,11 @@ data/labels/grayscale: data/labels/color
 	mkdir -p $@
 	for i in $(wildcard data/labels/color/*.png) ; do cat $$i | ./palette-to-grayscale $(CLASSES) > $@/`basename $$i` ; done
 
-data/labels/label-frequencies.csv: data/labels/color data/sample.txt
-	cat data/sample.txt | ./label-stats $(CLASSES) data/labels/color > $@
+data/labels/label-stats.csv: data/labels/label-counts.csv
+	cat data/labels/label-counts.csv | ./label-stats > $@
+
+data/labels/label-counts.csv: data/labels/color data/sample.txt
+	cat data/sample.txt | ./label-counts $(CLASSES) data/labels/color > $@
 
 data/images:
 	mkdir -p $@

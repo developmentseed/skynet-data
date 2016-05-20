@@ -1,46 +1,33 @@
 #!/usr/bin/env node
 
-var fs = require('fs')
-var path = require('path')
-var PNG = require('pngjs').PNG
-var readSample = require('./lib/read-sample')
+var split = require('split')
 var through = require('through2')
-var createClassLookup = require('./lib/lookup-class')
 
-var classes = JSON.parse(fs.readFileSync(process.argv[2]))
-var getClass = createClassLookup(classes)
-var labels = process.argv[3]
-
-readSample()
+process.stdin.pipe(split())
 .pipe(through.obj(write, end))
 .pipe(process.stdout)
 
-// start with zero for each class and bg
-var frequencies = classes.map((x) => 0).concat([0])
-var imageCounts = classes.map((x) => 0).concat([0])
-function write (tile, _, next) {
-  var file = path.join(labels, tile.join('-') + '.png')
-  if (!fs.existsSync(file)) {
-    console.error('Missing file: ' + file)
+var frequencies
+var imageCounts
+
+function write (line, _, next) {
+  if (line.trim().length === 0) { return next() }
+  line = line.split(',')
+  // skip header line
+  if (!frequencies) {
+    frequencies = line.slice(1).map((x) => 0)
+    imageCounts = [].concat(frequencies)
     return next()
   }
-  fs.createReadStream(file).pipe(new PNG()
-    .on('parsed', function () {
-      var present = classes.map((x) => 0)
-      for (var y = 0; y < this.height; y++) {
-        for (var x = 0; x < this.width; x++) {
-          var r = (this.width * y + x) << 2
-          var g = r + 1
-          var b = r + 2
-          var index = getClass(this.data[r], this.data[g], this.data[b])
-          frequencies[index] += 1
-          present[index] = 1
-        }
-      }
-      present.forEach(function (x, i) { imageCounts[i] += x })
-      next()
-    })
-  )
+
+  line.slice(1).forEach((count, i) => {
+    count = Number(count)
+    frequencies[i] += Number(count)
+    if (count > 0) {
+      imageCounts[i] += 1
+    }
+  })
+  next()
 }
 
 function end (cb) {
@@ -48,3 +35,4 @@ function end (cb) {
   frequencies.forEach((f, i) => this.push([i, f, imageCounts[i]].join(',') + '\n'))
   cb()
 }
+
