@@ -12,6 +12,7 @@
   "dependencies": {
     "hex-rgb": "^1.0.0",
     "mbtiles": "^0.8.2",
+    "minimist": "^1.2.0",
     "pngjs": "^2.2.0",
     "queue-async": "^1.2.1",
     "rgb-hex": "^1.0.0",
