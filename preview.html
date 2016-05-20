@@ -2,14 +2,14 @@
 <html>
   <head>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.16.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css' rel='stylesheet' />
     <style>
       body { margin:0; padding:0; }
-      ul { list-style-type: none; position: absolute; top: 0; bottom: 0; left: 0; width: 30%; overflow: scroll; }
+      ul { list-style-type: none; width: 30%; }
       li { margin-bottom: 20px; }
       li img { width: 49%; }
-      #map { position:absolute; top:0; bottom:0; right: 0; width: 65%; }
+      #map { position:fixed; top:0; bottom:0; right: 0; width: 65%; }
     </style>
   </head>
   <body>
@@ -34,6 +34,18 @@
         center: [-74.50, 40],
         zoom: 9
       })
+      .on('load', function () {
+        map.addSource('tile', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } })
+        map.addLayer({
+          'id': 'tile',
+          'source': 'tile',
+          'type': 'line',
+          'paint': {
+            'line-color': 'red',
+            'line-width': 4
+          }
+        })
+      })
 
       // grab tile list and show images + labels side by side
       fetch(query.sample)
@@ -42,19 +54,24 @@
         var lines = text.trim().split('\n')
         .map(function (line) {
           if (line.startsWith('#')) { return null }
-          var tile = line.split(' ').slice(1, 4).map(Number)
+          line = line.split(' ')
+          var tile = line.slice(1, 4).map(Number)
+          var labelCounts = line.slice(4)
           var lonlat = [tile2long(tile[1], tile[0]), tile2lat(tile[2], tile[0])].map(function (c) { return c.toFixed(4) })
           return `
-          <li data-location="${lonlat}" data-zoom="${tile[0]}">
-            <img src="${query.images}${tile.join('-')}.png">
-            <img src="${query.labels}${tile.join('-')}.png">
+          <li data-tile="${tile.join(',')}" data-label-counts="${labelCounts}">
+            <img src="blank.gif" class="lazy" data-src="${query.images}${tile.join('-')}.png">
+            <img src="blank.gif" class="lazy" data-src="${query.labels}${tile.join('-')}.png">
             <div>${tile} (${lonlat.reverse()})</div>
+            <div>${labelCounts}</div>
           </li>
           `
         })
         .filter(Boolean)
 
         document.querySelector('ul').innerHTML += lines.join('\n')
+        initLazyLoad()
+
         var items = document.querySelectorAll('li')
         for (var i = 0; i < items.length; i++) {
           var li = items[i]
@@ -64,17 +81,95 @@
       })
 
       function onClick (e) {
-        var ll = e.currentTarget.dataset.location.split(',').map(Number)
-        var z = +e.currentTarget.dataset.zoom
-        map.flyTo({center: ll, zoom: z - 1, speed: 2})
+        var tile = e.currentTarget.dataset.tile.split(',').map(Number)
+        var [w, s, e, n] = tileToBBOX(tile)
+        var z = +tile[0]
+        map.jumpTo({center: [ (w + e) / 2, (s + n) / 2 ], zoom: z - 1, speed: 2})
+        map.getSource('tile').setData({
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [w, n],
+                [w, s],
+                [e, s],
+                [e, n],
+                [w, n]
+              ]
+            ]
+          }
+        })
       }
+
+
       function onHover (e) {
-        var ll = e.currentTarget.dataset.location.split(',').map(Number)
+        console.log(e.currentTarget.dataset)
       }
+
+      // modified from https://github.com/mapbox/tilebelt/blob/master/index.js
       function tile2long(x,z) { return (x/Math.pow(2,z)*360-180); }
       function tile2lat(y,z) {
        var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
        return (180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
+      }
+      function tileToBBOX(tile) {
+          var e = tile2long(tile[1] + 1, tile[0]);
+          var w = tile2long(tile[1], tile[0]);
+          var s = tile2lat(tile[2] + 1, tile[0]);
+          var n = tile2lat(tile[2], tile[0]);
+          return [w, s, e, n];
+      }
+
+
+      /* copied from:
+       * lazyload.js (c) Lorenzo Giuliani
+       * MIT License (http://www.opensource.org/licenses/mit-license.html)
+       *
+       * expects a list of:
+       * `<img src="blank.gif" data-src="my_image.png" width="600" height="400" class="lazy">`
+       */
+
+      function loadImage (el, fn) {
+        var img = new Image()
+          , src = el.getAttribute('data-src');
+        img.onload = function() {
+          if (!! el.parent)
+            el.parent.replaceChild(img, el)
+          else
+            el.src = src;
+
+          fn? fn() : null;
+        }
+        img.src = src;
+      }
+
+      function elementInViewport(el) {
+        var rect = el.getBoundingClientRect()
+
+        return (
+           rect.top    >= 0
+        && rect.left   >= 0
+        && rect.top <= (window.innerHeight || document.documentElement.clientHeight)
+        )
+      }
+
+      function initLazyLoad () {
+        var query = document.querySelectorAll('img.lazy')
+        var processScroll = function(){
+              for (var i = 0; i < images.length; i++) {
+                if (elementInViewport(images[i])) {
+                  loadImage(images[i], function () {
+                    images.splice(i, i);
+                  });
+                }
+              };
+            };
+        var images = Array.prototype.slice.call(query)
+
+        processScroll();
+        window.addEventListener('scroll',processScroll);
       }
     </script>
   </body>
