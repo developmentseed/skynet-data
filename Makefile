@@ -37,7 +37,7 @@ data/labels/label-counts.txt: data/labels/color data/sample.txt
 
 data/images: data/labels/label-counts.txt
 	mkdir -p $@
-	cat data/labels/label-counts.txt | ./download-images $(IMAGE_TILES) $@ --label-ratio $(LABEL_RA)
+	cat data/labels/label-counts.txt | ./download-images $(IMAGE_TILES) $@ --label-ratio $(LABEL_RATIO)
 
 .PHONY: clean-labels clean-images clean
 clean-labels:
