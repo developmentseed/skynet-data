@@ -1,26 +1,22 @@
 #!/usr/bin/env node
 
-var split = require('split')
+var readSample = require('./lib/read-sample')
 var through = require('through2')
 
-process.stdin.pipe(split())
+readSample()
 .pipe(through.obj(write, end))
 .pipe(process.stdout)
 
 var frequencies
 var imageCounts
 
-function write (line, _, next) {
-  if (line.trim().length === 0) { return next() }
-  line = line.split(',')
-  // skip header line
+function write (tile, _, next) {
   if (!frequencies) {
-    frequencies = line.slice(1).map((x) => 0)
+    frequencies = tile.data.map((x) => 0)
     imageCounts = [].concat(frequencies)
-    return next()
   }
 
-  line.slice(1).forEach((count, i) => {
+  tile.data.forEach((count, i) => {
     count = Number(count)
     frequencies[i] += Number(count)
     if (count > 0) {

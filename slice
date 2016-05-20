@@ -7,7 +7,7 @@ var through = require('through2')
 var argv = require('minimist')(process.argv.slice(2))
 
 if (!argv.labels) {
-  console.error('Usage: cat sample.txt | ./slice --labels path/to/labels [--images path/to/images] [--start START_INDEX=0] [--end END_INDEX=Infinity] [--frequencies label-counts.csv] [--label-ratio RATIO]')
+  console.error('Usage: cat sample.txt | ./slice --labels path/to/labels [--images path/to/images] [--start START_INDEX=0] [--end END_INDEX=Infinity] [--label-ratio RATIO]')
   process.exit()
 }
 
@@ -16,22 +16,6 @@ var labels = argv.labels ? path.resolve(argv.labels) : false
 var start = parseInt(argv.start || 0, 10)
 var end = parseInt(argv.end || Infinity, 10)
 
-var frequencies = argv.frequencies
-var minLabelRatio = parseFloat(argv['label-ratio'] || 0)
-var labelRatios = {}
-if (frequencies) {
-  fs.readFileSync(frequencies, 'utf-8')
-    .split('\n').slice(1)
-    .forEach(function (line, i) {
-      line = line.split(',')
-      var tile = line[0]
-      var freqs = line.slice(1).map(Number)
-      var sum = freqs.reduce((a, b) => a + b, 0)
-      // Assumes the LAST class is background
-      labelRatios[tile] = (sum - freqs[freqs.length - 1]) / sum
-    })
-}
-
 var count = 0
 
 readSample()
@@ -39,8 +23,7 @@ readSample()
   count++
   if (count < start || count >= end) { return next() }
 
-  tile = tile.join('-')
-  var filename = tile + '.png'
+  var filename = tile.join('-') + '.png'
 
   if (images) {
     var image = path.join(images, filename)
@@ -53,10 +36,6 @@ readSample()
   var label = path.join(labels, filename)
   if (labels && !fs.existsSync(label)) {
     console.error('Cannot find ' + label)
-    return next()
-  }
-
-  if (frequencies && labelRatios[tile] <= minLabelRatio) {
     return next()
   }
 

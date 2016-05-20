@@ -41,9 +41,9 @@ function write (tile, _, next) {
       if (first) {
         first = false
         var classNames = classes.map((c) => c.name).concat(['Background'])
-        stream.push(['tile'].concat(classNames).join(',') + '\n')
+        stream.push(['#source', 'z', 'x', 'y'].concat(classNames).join(' ') + '\n')
       }
-      stream.push([tile.join('-')].concat(currentImageFrequencies).join(',') + '\n')
+      stream.push([tile.source].concat(tile, currentImageFrequencies).join(' ') + '\n')
       next()
     })
   )

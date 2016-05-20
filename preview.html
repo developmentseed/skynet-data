@@ -41,7 +41,8 @@
       .then(function (text) {
         var lines = text.trim().split('\n')
         .map(function (line) {
-          var tile = line.split(' ').slice(1).map(Number)
+          if (line.startsWith('#')) { return null }
+          var tile = line.split(' ').slice(1, 4).map(Number)
           var lonlat = [tile2long(tile[1], tile[0]), tile2lat(tile[2], tile[0])].map(function (c) { return c.toFixed(4) })
           return `
           <li data-location="${lonlat}" data-zoom="${tile[0]}">
@@ -51,6 +52,8 @@
           </li>
           `
         })
+        .filter(Boolean)
+
         document.querySelector('ul').innerHTML += lines.join('\n')
         var items = document.querySelectorAll('li')
         for (var i = 0; i < items.length; i++) {

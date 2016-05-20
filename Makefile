@@ -3,6 +3,7 @@ QA_TILES ?= planet
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
 TRAIN_SIZE ?= 1000
 CLASSES ?= classes/water-roads-buildings.json
+LABEL_RATIO ?= 0
 ZOOM_LEVEL ?= ''
 
 data/osm/planet.mbtiles:
@@ -24,15 +25,15 @@ data/labels/grayscale: data/labels/color
 	mkdir -p $@
 	for i in $(wildcard data/labels/color/*.png) ; do cat $$i | ./palette-to-grayscale $(CLASSES) > $@/`basename $$i` ; done
 
-data/labels/label-stats.csv: data/labels/label-counts.csv
-	cat data/labels/label-counts.csv | ./label-stats > $@
+data/labels/label-stats.csv: data/labels/label-counts.txt
+	cat data/labels/label-counts.txt | ./label-stats > $@
 
-data/labels/label-counts.csv: data/labels/color data/sample.txt
+data/labels/label-counts.txt: data/labels/color data/sample.txt
 	cat data/sample.txt | ./label-counts $(CLASSES) data/labels/color > $@
 
-data/images:
+data/images: data/labels/label-counts.txt
 	mkdir -p $@
-	cat data/sample.txt | ./download-images $(IMAGE_TILES) $@
+	cat data/labels/label-counts.txt | ./download-images $(IMAGE_TILES) $@ --label-ratio $(LABEL_RA)
 
 .PHONY: clean-labels clean-images clean
 clean-labels:
