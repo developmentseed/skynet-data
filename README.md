@@ -31,7 +31,8 @@ DATA_TILES ?= data/osm/$(QA_TILES).mbtiles
 TRAIN_SIZE=1000
 # define label classes output
 CLASSES=classes/water-roads-buildings.json
-# discard images whose ratio of labeled to unlabeled pixels is less than or equal to:
+# do not bother downloading images for tiles whose ratio of labeled to unlabeled pixels
+# is less than or equal to:
 LABEL_RATIO ?= 0
 # set this to a zoom higher than the data tiles' max zoom to get overzoomed label images
 ZOOM_LEVEL ?= ''
@@ -65,4 +66,16 @@ Heads up: the default, Mapbox Satellite, will need you to set the
 
 Preview the generated data by opening up `preview.html?accessToken=<mapbox
 access token>` in a local web server.
+
+### Partition Data
+
+Use the `slice` script to partition the data, e.g. into training/test/validation
+sets.
+
+```sh
+cat data/labels/label-counts.txt | ./slice --labels path/to/labels --images path/to/images [--start START_INDEX=0] [--end END_INDEX=Infinity] [--label-ratio RATIO]
+```
+
+Each line of the input piped into `slice` should look like `file.mbtiles z x y label_1_count label_2_count ...`.  The label counts are only necessary if `--label-ratio` is used.
+
 
