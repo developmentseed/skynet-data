@@ -3,6 +3,7 @@
 var path = require('path')
 var Vector = require('tilelive-vector')
 require('mbtiles').registerProtocols(require('tilelive'))
+var queue = require('queue-async')
 
 var style = require('./lib/style')
 var readSample = require('./lib/read-sample')
@@ -14,9 +15,17 @@ var output = process.argv[4] // output dir
 
 init(input, style(layers), function (err, vector) {
   if (err) { throw err }
+
+  var q = queue()
+
   readSample()
   .on('data', function (tile) {
-    writeTile(output, vector, tile)
+    q.defer(function (done) {
+      writeTile(output, vector, tile, done)
+    })
+  })
+  .on('end', function () {
+    q.awaitAll(function (err) { if (err) { throw err } })
   })
 })
 
