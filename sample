@@ -4,7 +4,6 @@ var fs = require('fs')
 var exec = require('child_process').exec
 var split = require('split')
 var tilebelt = require('tilebelt')
-var lines = []
 
 var tiles = process.argv[2]
 var trainSize = process.argv[3]
