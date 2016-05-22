@@ -18,7 +18,7 @@ var end = parseInt(argv.end || Infinity, 10)
 
 var count = 0
 
-readSample()
+readSample(argv)
 .pipe(through.obj(function (tile, _, next) {
   count++
   if (count < start || count >= end) { return next() }

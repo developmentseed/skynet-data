@@ -6,12 +6,13 @@ var PNG = require('pngjs').PNG
 var readSample = require('./lib/read-sample')
 var through = require('through2')
 var createClassLookup = require('./lib/lookup-class')
+var argv = require('minimist')(process.argv.slice(2))
 
-var classes = JSON.parse(fs.readFileSync(process.argv[2]))
+var classes = JSON.parse(fs.readFileSync(argv._[0]))
 var getClass = createClassLookup(classes)
-var labels = process.argv[3]
+var labels = argv._[1]
 
-readSample()
+readSample(argv)
 .pipe(through.obj(write))
 .pipe(process.stdout)
 

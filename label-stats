@@ -2,8 +2,9 @@
 
 var readSample = require('./lib/read-sample')
 var through = require('through2')
+var argv = require('minimist')(process.argv.slice(2))
 
-readSample()
+readSample(argv)
 .pipe(through.obj(write, end))
 .pipe(process.stdout)
 
