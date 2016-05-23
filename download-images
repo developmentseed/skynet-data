@@ -4,7 +4,7 @@ var tilelive = require('tilelive')
 var queue = require('queue-async')
 var readSample = require('./lib/read-sample')
 var writeTile = require('./lib/write-tile')
-var argv = require('minimist')(process.argv)
+var argv = require('minimist')(process.argv.slice(2))
 
 var input = argv._[0] // tilelive uri
 tilelive.auto(input)
