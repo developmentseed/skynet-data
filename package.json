@@ -18,6 +18,7 @@
     "rgb-hex": "^1.0.0",
     "split": "^1.0.0",
     "through2": "^2.0.1",
+    "tile-reduce": "^3.1.1",
     "tilebelt": "^1.0.1",
     "tilejson": "^1.0.1",
     "tilelive": "^5.12.2",
