@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+var path = require('path')
+var tileReduce = require('tile-reduce')
+var argv = require('minimist')(process.argv.slice(2))
+
+var opts = Object.assign({
+  zoom: 12
+}, argv)
+
+opts.map = path.resolve(opts.map)
+
+opts.sources = Array.isArray(argv.source)
+  ? argv.source.map(parseSource)
+  : argv.source
+    ? [parseSource(argv.source)]
+    : [{
+      name: 'osmdata',
+      mbtiles: path.join(__dirname, 'data/osm/planet.mbtiles'),
+      layers: ['osm'],
+      raw: true
+    }]
+delete opts.source
+
+;['bbox', 'geojson', 'tiles'].forEach((key) => {
+  if (opts[key]) { opts[key] = JSON.parse(opts[key]) }
+})
+
+tileReduce(opts)
+
+function parseSource (source) {
+  var parts = source.split(':')
+  return {
+    name: parts[0],
+    mbtiles: path.resolve(parts[1]),
+    layers: parts[2].split(','),
+    raw: true
+  }
+}
