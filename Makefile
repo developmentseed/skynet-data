@@ -1,6 +1,7 @@
 
 QA_TILES ?= planet
 DATA_TILES ?= data/osm/$(QA_TILES).mbtiles
+BBOX ?= '-180,-85,180,85'
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
 TRAIN_SIZE ?= 1000
 CLASSES ?= classes/water-roads-buildings.json
@@ -16,7 +17,7 @@ data/osm/%.mbtiles:
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
 data/all_tiles.txt: $(DATA_TILES)
-	tippecanoe-enumerate $^ > $@
+	tippecanoe-enumerate $^ | node lib/read-sample.js --bbox='$(BBOX)' > $@
 
 data/sample.txt: data/all_tiles.txt
 	./sample $^ $(TRAIN_SIZE) $(ZOOM_LEVEL) > $@

@@ -25,6 +25,8 @@ listed):
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
 # which osm-qa tiles extract to download; e.g. united_states_of_america
 QA_TILES=planet
+# filter to this bbox
+BBOX ?= '-180,-85,180,85'
 # data tiles to use for rendering labels; defaults to osm-qa tiles extract specified by QA_TILES
 DATA_TILES ?= data/osm/$(QA_TILES).mbtiles
 # number of images (tiles) to sample
