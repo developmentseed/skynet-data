@@ -20,10 +20,12 @@
         p = p.split('=')
         query[p[0]] = p[1]
       })
+      var prefix = query.prefix || 'data'
+      if (!prefix.endsWith('/')) { prefix = prefix + '/' }
       query = Object.assign({
-        images: 'data/images/',
-        labels: 'data/labels/color/',
-        sample: 'data/sample.txt',
+        images: prefix + 'images/',
+        labels: prefix + 'labels/color/',
+        sample: prefix + 'sample.txt',
         labelRatio: 0
       }, query)
 
