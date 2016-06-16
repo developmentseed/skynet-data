@@ -64,6 +64,8 @@ prune-labels: data/sample-filtered.txt
 		cut -d' ' -f2,3,4 | sed 's/ /-/g' > data/labels/color/include.txt
 	find data/labels/color -name *.png | grep -Fvf data/labels/color/include.txt | xargs rm
 	rm data/labels/color/include.txt
+	touch data/labels/label-counts.txt
+	touch data/sample-filtered.txt
 
 # Make train & val lists, with 80% of data -> train, 20% -> val
 data/train.txt: data/sample-filtered.txt data/labels/grayscale data/images
