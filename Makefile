@@ -24,6 +24,7 @@ data/sample.txt: data/all_tiles.txt
 
 data/labels/color: data/sample.txt
 	mkdir -p $@
+	cp $(CLASSES) data/labels
 	cat data/sample.txt | ./rasterize-labels $(DATA_TILES) $(CLASSES) $@
 
 data/labels/grayscale: data/labels/color
