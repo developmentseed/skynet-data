@@ -8,6 +8,7 @@ CLASSES ?= classes/water-roads-buildings.json
 LABEL_RATIO ?= 0
 ZOOM_LEVEL ?= ''
 
+# Download OSM QA tiles
 data/osm/planet.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz | gunzip > $@
@@ -16,30 +17,64 @@ data/osm/%.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
+# Make a list of all the tiles within BBOX
 data/all_tiles.txt: $(DATA_TILES)
 	tippecanoe-enumerate $^ | node lib/read-sample.js --bbox='$(BBOX)' > $@
 
+# Make a random sample from all_tiles.txt of TRAIN_SIZE tiles, possibly
+# 'overzooming' them to zoom=ZOOM_LEVEL
 data/sample.txt: data/all_tiles.txt
 	./sample $^ $(TRAIN_SIZE) $(ZOOM_LEVEL) > $@
 
+# Rasterize the data tiles to bitmaps where each pixel is colored according to
+# the class defined in CLASSES
+# (no class / background => black)
 data/labels/color: data/sample.txt
 	mkdir -p $@
 	cp $(CLASSES) data/labels
-	cat data/sample.txt | ./rasterize-labels $(DATA_TILES) $(CLASSES) $@
+	cat data/sample.txt | \
+	  parallel --pipe --block 10K './rasterize-labels $(DATA_TILES) $(CLASSES) $@'
 
-data/labels/grayscale: data/labels/color
-	mkdir -p $@
-	for i in $(wildcard data/labels/color/*.png) ; do cat $$i | ./palette-to-grayscale $(CLASSES) > $@/`basename $$i` ; done
+data/labels/label-counts.txt: data/labels/color data/sample.txt
+	cat data/sample.txt | \
+		parallel --pipe --block 10K --group './label-counts $(CLASSES) data/labels/color' > $@
 
 data/labels/label-stats.csv: data/labels/label-counts.txt
 	cat data/labels/label-counts.txt | ./label-stats > $@
 
-data/labels/label-counts.txt: data/labels/color data/sample.txt
-	cat data/sample.txt | ./label-counts $(CLASSES) data/labels/color > $@
+# Once we've generated label bitmaps, we can make a version of the original sample
+# filtered to tiles with the ratio (pixels with non-background label)/(total pixels)
+# above the LABEL_RATIO threshold
+data/sample-filtered.txt: data/labels/label-counts.txt
+	cat $^ | node lib/read-sample.js --label-ratio $(LABEL_RATIO) > $@
 
-data/images: data/labels/label-counts.txt
+data/labels/grayscale: data/sample-filtered.txt
 	mkdir -p $@
-	cat data/labels/label-counts.txt | ./download-images $(IMAGE_TILES) $@ --label-ratio $(LABEL_RATIO)
+	cat $^ | \
+		cut -d' ' -f2,3,4 | sed 's/ /-/g' | \
+		parallel 'cat data/labels/color/{}.png | ./palette-to-grayscale $(CLASSES) > $@/{}.png'
+
+data/images: data/sample-filtered.txt
+	mkdir -p $@
+	cat data/sample-filtered.txt | ./download-images $(IMAGE_TILES) $@
+
+# Make train & val lists, with 80% of data -> train, 20% -> val
+data/train.txt: data/sample-filtered.txt data/labels/grayscale data/images
+	# weird cd shenanigans to get "real" paths even when data/ is a symlink
+	cd data && cat sample-filtered.txt | \
+		../slice --start 0 \
+			--end $$(($$(cat sample-filtered.txt | wc -l) * 4 / 5)) \
+			--labels $$(pwd -P)/labels/grayscale \
+			--images $$(pwd -P)/images > train.txt
+
+data/val.txt: data/sample-filtered.txt data/labels/grayscale data/images
+	# weird cd shenanigans to get "real" paths even when data/ is a symlink
+	cd data && cat sample-filtered.txt | \
+		../slice \
+			--start $$(($$(cat sample-filtered.txt | wc -l) * 4 / 5)) \
+			--end Infinity \
+			--labels $$(pwd -P)/labels/grayscale \
+			--images $$(pwd -P)/images > val.txt
 
 .PHONY: clean-labels clean-images clean
 clean-labels:
