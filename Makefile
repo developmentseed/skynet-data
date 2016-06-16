@@ -60,21 +60,19 @@ data/images: data/sample-filtered.txt
 
 # Make train & val lists, with 80% of data -> train, 20% -> val
 data/train.txt: data/sample-filtered.txt data/labels/grayscale data/images
-	# weird cd shenanigans to get "real" paths even when data/ is a symlink
-	cd data && cat sample-filtered.txt | \
-		../slice --start 0 \
-			--end $$(($$(cat sample-filtered.txt | wc -l) * 4 / 5)) \
-			--labels $$(pwd -P)/labels/grayscale \
-			--images $$(pwd -P)/images > train.txt
+	cat data/sample-filtered.txt | \
+		./slice --start 0 \
+			--end $$(($$(cat data/sample-filtered.txt | wc -l) * 4 / 5)) \
+			--labels $$(cd data && pwd -P)/labels/grayscale \
+			--images $$(cd data && pwd -P)/images > $@
 
 data/val.txt: data/sample-filtered.txt data/labels/grayscale data/images
-	# weird cd shenanigans to get "real" paths even when data/ is a symlink
-	cd data && cat sample-filtered.txt | \
-		../slice \
-			--start $$(($$(cat sample-filtered.txt | wc -l) * 4 / 5)) \
+	cat data/sample-filtered.txt | \
+		./slice \
+			--start $$(($$(cat data/sample-filtered.txt | wc -l) * 4 / 5)) \
 			--end Infinity \
-			--labels $$(pwd -P)/labels/grayscale \
-			--images $$(pwd -P)/images > val.txt
+			--labels $$(cd data && pwd -P)/labels/grayscale \
+			--images $$(cd data && pwd -P)/images > $@
 
 .PHONY: clean-labels clean-images clean
 clean-labels:
