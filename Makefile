@@ -58,6 +58,13 @@ data/images: data/sample-filtered.txt
 	mkdir -p $@
 	cat data/sample-filtered.txt | ./download-images $(IMAGE_TILES) $@
 
+.PHONY: prune-labels
+prune-labels: data/sample-filtered.txt
+	cat data/sample-filtered.txt | \
+		cut -d' ' -f2,3,4 | sed 's/ /-/g' > data/labels/color/include.txt
+	find data/labels/color -name *.png | grep -Fvf data/labels/color/include.txt | xargs rm
+	rm data/labels/color/include.txt
+
 # Make train & val lists, with 80% of data -> train, 20% -> val
 data/train.txt: data/sample-filtered.txt data/labels/grayscale data/images
 	cat data/sample-filtered.txt | \
