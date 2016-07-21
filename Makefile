@@ -31,16 +31,15 @@ data/sample.txt: data/all_tiles.txt
 # (no class / background => black)
 data/labels/color: data/sample.txt
 	mkdir -p $@
-	cp $(CLASSES) data/labels
+	cp $(CLASSES) data/classes.json
 	cat data/sample.txt | \
 	  parallel --pipe --block 10K './rasterize-labels $(DATA_TILES) $(CLASSES) $@'
 
 data/labels/label-counts.txt: data/labels/color data/sample.txt
 	cat data/sample.txt | \
 		parallel --pipe --block 10K --group './label-counts $(CLASSES) data/labels/color' > $@
-
-data/labels/label-stats.csv: data/labels/label-counts.txt
-	cat data/labels/label-counts.txt | ./label-stats > $@
+	# Also generate label-stats.csv
+	cat data/labels/label-counts.txt | ./label-stats > data/labels/label-stats.csv
 
 # Once we've generated label bitmaps, we can make a version of the original sample
 # filtered to tiles with the ratio (pixels with non-background label)/(total pixels)
@@ -82,6 +81,9 @@ data/val.txt: data/sample-filtered.txt data/labels/grayscale data/images
 			--end Infinity \
 			--labels $$(cd data && pwd -P)/labels/grayscale \
 			--images $$(cd data && pwd -P)/images > $@
+
+.PHONY: all
+all: data/train.txt data/val.txt
 
 .PHONY: clean-labels clean-images clean
 clean-labels:
