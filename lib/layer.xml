@@ -1,9 +1,15 @@
-  <Rule>
-    <Filter>FILTER ([mapnik::geometry_type] = 2)</Filter>
-    <LineSymbolizer stroke-width="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0" />
-  </Rule>
-  <Rule>
-    <Filter>FILTER ([mapnik::geometry_type] = 3)</Filter>
-    <LineSymbolizer stroke-width="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0"/>
-    <PolygonSymbolizer fill="COLOR" />
-  </Rule>
+  <Style name="LAYER_ID" filter-mode="all">
+    <Rule>
+      <Filter>FILTER ([mapnik::geometry_type] = 2)</Filter>
+      <LineSymbolizer stroke-width="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0" />
+    </Rule>
+    <Rule>
+      <Filter>FILTER ([mapnik::geometry_type] = 3)</Filter>
+      <LineSymbolizer stroke-width="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0"/>
+      <PolygonSymbolizer fill="COLOR" />
+    </Rule>
+  </Style>
+
+  <Layer name="LAYER_ID" srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
+    <StyleName>LAYER_ID</StyleName>
+  </Layer>
