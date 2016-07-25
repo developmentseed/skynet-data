@@ -23,7 +23,7 @@ countLines(tiles, function (err, total) {
         total = total * Math.pow(4, zoomLevel - realZoom)
       }
       sample = []
-      while (sample.length < trainSize) {
+      while (sample.length < trainSize && sample.length < total) {
         var l = Math.floor(Math.random() * total)
         if (sample.indexOf(l) < 0) { sample.push(l) }
       }
