@@ -51,6 +51,7 @@
       })
 
       // grab tile list and show images + labels side by side
+      var tiles = []
       fetch(query.sample)
       .then(function (response) { return response.text() })
       .then(function (text) {
@@ -59,11 +60,11 @@
           if (line.startsWith('#')) { return null }
           line = line.split(' ')
           var tile = line.slice(1, 4).map(Number)
+          tiles.push(tile)
           var labelCounts = line.slice(4)
           if (query.labelRatio >= 0 && labelCounts.length) {
             labelCounts = labelCounts.map(Number)
             r = 1 - labelCounts[labelCounts.length - 1] / labelCounts.reduce((a, b) => a + b, 0)
-            console.log(r, labelCounts, query.labelRatio)
             if (r <= query.labelRatio) { return null }
           }
           var lonlat = [tile2long(tile[1], tile[0]), tile2lat(tile[2], tile[0])].map(function (c) { return c.toFixed(4) })
@@ -79,6 +80,7 @@
         .filter(Boolean)
 
         document.querySelector('ul').innerHTML += lines.join('\n')
+
         initLazyLoad()
 
         var items = document.querySelectorAll('li')
@@ -87,6 +89,20 @@
           li.addEventListener('click', onClick)
           li.addEventListener('mouseover', onHover);
         }
+
+        var boxes = {
+          type: 'FeatureCollection', features: tiles.map(tileToFeature)
+        }
+        map.addSource('all-tiles', { type: 'geojson', data: boxes })
+        map.addLayer({
+          'id': 'all-tiles',
+          'source': 'all-tiles',
+          'type': 'fill',
+          'paint': {
+            'fill-color': 'red',
+            'fill-opacity': 0.25
+          }
+        })
       })
 
       function onClick (e) {
@@ -94,22 +110,7 @@
         var [w, s, e, n] = tileToBBOX(tile)
         var z = +tile[0]
         map.jumpTo({center: [ (w + e) / 2, (s + n) / 2 ], zoom: z - 1, speed: 2})
-        map.getSource('tile').setData({
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Polygon',
-            coordinates: [
-              [
-                [w, n],
-                [w, s],
-                [e, s],
-                [e, n],
-                [w, n]
-              ]
-            ]
-          }
-        })
+        map.getSource('tile').setData(tileToFeature(tile))
       }
 
 
@@ -129,6 +130,26 @@
           var s = tile2lat(tile[2] + 1, tile[0]);
           var n = tile2lat(tile[2], tile[0]);
           return [w, s, e, n];
+      }
+
+      function tileToFeature(tile) {
+        var [w, s, e, n] = tileToBBOX(tile)
+        return {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [
+                [w, n],
+                [w, s],
+                [e, s],
+                [e, n],
+                [w, n]
+              ]
+            ]
+          }
+        }
       }
 
 
