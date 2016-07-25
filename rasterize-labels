@@ -17,7 +17,7 @@ var output = argv._[2] // output dir
 init(input, style(layers), function (err, vector) {
   if (err) { throw err }
 
-  var q = queue()
+  var q = queue(5) // TODO: abstract magic number
 
   readSample(argv)
   .on('data', function (tile) {
