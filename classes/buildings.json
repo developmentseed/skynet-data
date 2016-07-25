@@ -2,5 +2,6 @@
   "name": "Building",
   "color": "#ff0000",
   "stroke-width": "1",
-  "filter": "[building].match('.+')"
+  "filter": "[building].match('.+')",
+  "sourceLayer": "osm"
 }]

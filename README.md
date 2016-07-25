@@ -32,7 +32,7 @@ BBOX ?= '-180,-85,180,85'
 # number of images (tiles) to sample
 TRAIN_SIZE=1000
 # define label classes output
-CLASSES=classes/water-roads-buildings.json
+CLASSES=classes/roads-buildings.json
 # Filter out tiles whose ratio of labeled to unlabeled pixels is less than or
 # equal to the given ratio.  Useful for excluding images that are all background, for example.
 LABEL_RATIO ?= 0

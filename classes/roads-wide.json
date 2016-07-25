@@ -1,6 +1,0 @@
-[{
-  "name": "Road",
-  "color": "#ffffff",
-  "stroke-width": "5",
-  "filter": "[highway].match('.+') and not ([tunnel] = 'yes' or [tunnel]='true')"
-}]
