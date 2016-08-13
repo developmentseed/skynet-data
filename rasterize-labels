@@ -31,9 +31,12 @@ init(input, style(layers), function (err, vector) {
 })
 
 function init (source, style, cb) {
+  if (!/^.+:\/\//.test(source)) {
+    source = 'mbtiles://' + source
+  }
   /* eslint-disable no-new */
   new Vector({
     xml: style,
-    source: 'mbtiles://' + source
+    source: source
   }, cb)
 }
