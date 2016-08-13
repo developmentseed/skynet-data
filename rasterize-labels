@@ -2,7 +2,8 @@
 
 var path = require('path')
 var Vector = require('tilelive-vector')
-require('mbtiles').registerProtocols(require('tilelive'))
+var tilelive = require('tilelive')
+require('mbtiles').registerProtocols(tilelive)
 var queue = require('queue-async')
 var argv = require('minimist')(process.argv.slice(2))
 
@@ -33,6 +34,8 @@ init(input, style(layers), function (err, vector) {
 function init (source, style, cb) {
   if (!/^.+:\/\//.test(source)) {
     source = 'mbtiles://' + path.resolve(source)
+  } else {
+    tilelive.auto(source)
   }
 
   console.log('Reading from source', source)
