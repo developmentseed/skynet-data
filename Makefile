@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 
 QA_TILES ?= planet
-DATA_TILES ?= mbtiles://data/osm/$(QA_TILES).mbtiles
+DATA_TILES ?= mbtiles://./data/osm/$(QA_TILES).mbtiles
 BBOX ?= '-180,-85,180,85'
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
 TRAIN_SIZE ?= 5000
