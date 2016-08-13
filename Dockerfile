@@ -15,4 +15,5 @@ RUN npm install
 
 ADD . /workdir
 
-ENTRYPOINT /bin/bash
+ENTRYPOINT ["make"]
+CMD ["all"]
