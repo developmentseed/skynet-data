@@ -10,12 +10,21 @@ imagery.
  - OSM QA tile data [copyright OpenStreetMap contributors](http://www.openstreetmap.org/copyright) and licensed under [ODbL](http://opendatacommons.org/licenses/odbl/)
  - Mapbox Satellite data can be [traced for noncommercial purposes](https://www.mapbox.com/tos/#[YmtMIywt]).
 
-## Install
+## Quick Start
 
- - Install [tippecanoe](https://github.com/mapbox/tippecanoe)
- - Clone this repo and `npm install`
+The easiest way to use this is via the [`developmentseed/skynet-data` docker image](https://hub.docker.com/r/developmentseed/skynet-data):
 
-## Use
+```sh
+docker run -d -v /path/to/output/dir:/workdir/data developmentseed/skynet-data download-osm-tiles
+
+docker run -d -v /path/to/output/dir:/workdir/data -e MapboxAccessToken=YOUR_TOKEN developmentseed/skynet-data
+```
+
+The first line downloads the OSM QA tiles to `/path/to/output/dir/osm/planet.mbtiles`.  If you've already got that file on your machine, you can skip this.
+
+The second builds a training set using the default options (Roads features from OSM QA tiles, images from Mapbox Satellite).  To change the data sources, training set size and other options, send the relevant environment variables (see below) into `docker run` with `-e VAR=value`.
+
+## Variables
 
 The `make` commands below work off the following variables (with defaults as
 listed):
@@ -26,7 +35,7 @@ IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?acc
 # which osm-qa tiles extract to download; e.g. united_states_of_america
 QA_TILES=planet
 # location of data tiles to use for rendering labels; defaults to osm-qa tiles extract specified by QA_TILES
-DATA_TILES ?= data/osm/$(QA_TILES).mbtiles
+DATA_TILES ?= mbtiles://data/osm/$(QA_TILES).mbtiles
 # filter to this bbox
 BBOX ?= '-180,-85,180,85'
 # number of images (tiles) to sample
@@ -37,12 +46,19 @@ CLASSES=classes/roads-buildings.json
 # equal to the given ratio.  Useful for excluding images that are all background, for example.
 LABEL_RATIO ?= 0
 # set this to a zoom higher than the data tiles' max zoom to get overzoomed label images
-ZOOM_LEVEL ?= ''
+ZOOM_LEVEL ?= 17
 ```
 
 Make a full training set according to these params with `make all`.
 
 ## Details
+
+### Install
+
+ - Install [tippecanoe](https://github.com/mapbox/tippecanoe)
+ - Clone this repo and run `npm install`.  (Note that this includes a
+   node-mapnik install, which sometimes has trouble building in bleeding-edge
+   versions of node.)
 
 ### Sample available tiles
 

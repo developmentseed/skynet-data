@@ -4,10 +4,10 @@ QA_TILES ?= planet
 DATA_TILES ?= mbtiles://data/osm/$(QA_TILES).mbtiles
 BBOX ?= '-180,-85,180,85'
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
-TRAIN_SIZE ?= 1000
-CLASSES ?= classes/water-roads-buildings.json
+TRAIN_SIZE ?= 5000
+CLASSES ?= classes/roads.json
 LABEL_RATIO ?= 0
-ZOOM_LEVEL ?= ''
+ZOOM_LEVEL ?= 17
 
 # Download OSM QA tiles
 data/osm/planet.mbtiles:
@@ -17,6 +17,10 @@ data/osm/planet.mbtiles:
 data/osm/%.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
+
+.PHONY: download-osm-tiles
+download-osm-tiles: data/osm/$(QA_TILES).mbtiles
+	echo "Downloading $(QA_TILES) extract."
 
 # Make a list of all the tiles within BBOX
 data/all_tiles.txt:
