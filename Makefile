@@ -1,6 +1,6 @@
 
 QA_TILES ?= planet
-DATA_TILES ?= data/osm/$(QA_TILES).mbtiles
+DATA_TILES ?= mbtiles://data/osm/$(QA_TILES).mbtiles
 BBOX ?= '-180,-85,180,85'
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
 TRAIN_SIZE ?= 1000
@@ -18,8 +18,11 @@ data/osm/%.mbtiles:
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
 # Make a list of all the tiles within BBOX
-data/all_tiles.txt: $(DATA_TILES)
-	tippecanoe-enumerate $^ | node lib/read-sample.js --bbox='$(BBOX)' > $@
+data/all_tiles.txt:
+	if [[ $(DATA_TILES) == mbtiles* ]] ; then \
+		tippecanoe-enumerate $^ | node lib/read-sample.js --bbox='$(BBOX)' > $@ ; \
+		else echo "$(DATA_TILES) is not an mbtiles source: you will need to create data/all_tiles.txt manually." && exit 1 ; \
+		fi
 
 # Make a random sample from all_tiles.txt of TRAIN_SIZE tiles, possibly
 # 'overzooming' them to zoom=ZOOM_LEVEL
