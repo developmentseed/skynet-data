@@ -1,3 +1,4 @@
+SHELL=/bin/bash
 
 QA_TILES ?= planet
 DATA_TILES ?= mbtiles://data/osm/$(QA_TILES).mbtiles
