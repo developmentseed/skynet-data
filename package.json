@@ -11,6 +11,7 @@
   "author": "Anand Thakker <vestibule@anandthakker.net> (http://anandthakker.net/)",
   "license": "ISC",
   "dependencies": {
+    "geojson-stream": "0.0.1",
     "hex-rgb": "^1.0.0",
     "mbtiles": "^0.8.2",
     "minimist": "^1.2.0",

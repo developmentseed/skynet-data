@@ -1,0 +1,58 @@
+#!/usr/bin/env node
+
+var through = require('through2')
+var tilebelt = require('tilebelt')
+var readSample = require('./lib/read-sample')
+var geojsonStream = require('geojson-stream')
+var argv = require('minimist')(process.argv.slice(2))
+
+readSample(argv)
+.pipe(through.obj(function (tile, _, next) {
+  var bbox = tilebelt.tileToBBOX([tile[1], tile[2], tile[0]])
+
+  // quantize based on zoom level
+  var z = tile[0]
+  var pixel = 360 / 256 / Math.pow(2, z)
+  var places = Math.max(0, -Math.floor(Math.log10(pixel)))
+  bbox = bbox.map(function (c) {
+    return parseFloat(c.toFixed(places))
+  })
+
+  if (argv.polygons) {
+    var poly = {
+      type: 'Polygon',
+      coordinates: [[
+        [bbox[0], bbox[1]],
+        [bbox[0], bbox[3]],
+        [bbox[2], bbox[3]],
+        [bbox[2], bbox[1]],
+        [bbox[0], bbox[1]]
+      ]]
+    }
+    this.push(feature(tile, poly))
+  }
+  var point = {
+    type: 'Point',
+    coordinates: [
+      (bbox[0] + bbox[2]) / 2,
+      (bbox[1] + bbox[3]) / 2
+    ]
+  }
+  this.push(feature(tile, point))
+  next()
+}))
+.pipe(geojsonStream.stringify())
+.pipe(process.stdout)
+
+function feature (tile, geometry) {
+  return {
+    type: 'Feature',
+    properties: {
+      tile: tile.join('/'),
+      x: tile[1],
+      y: tile[2],
+      z: tile[0]
+    },
+    geometry: geometry
+  }
+}
