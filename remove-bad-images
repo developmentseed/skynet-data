@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var path = require('path')
+var jpeg = require('jpeg-js')
+var split = require('split')
+var argv = require('minimist')(process.argv.slice(2), {
+  default: {
+    visuallyBlack: 40,
+    threshold: 0.95
+  },
+  boolean: ['dryrun']
+})
+
+// Delete images in which X% of pixels are "visually black"
+
+console.log(argv)
+var inputs = []
+
+process.stdin.pipe(split())
+.on('data', function (name) { inputs.push(name) })
+.on('end', function () {
+  var deletedCount = 0
+  inputs
+  .filter(Boolean)
+  .forEach(function (name, j) {
+    var filename = path.resolve(name)
+    var jpegData = fs.readFileSync(filename)
+    var rawImageData = jpeg.decode(jpegData, true) // return as Uint8Array
+    var data = rawImageData.data
+    var darkPixelCount = 0
+    for (var i = 0; i < data.length; i++) {
+      if (Math.max(data[i], data[i + 1], data[i + 2]) < argv.visuallyBlack) {
+        darkPixelCount++
+      }
+    }
+    if (darkPixelCount >= (data.length / 4 * argv.threshold)) {
+      deletedCount++
+      if (!argv.dryrun) {
+        fs.unlinkSync(filename)
+      }
+      console.log(argv.dryrun ? 'DRYRUN delete' : 'delete', filename, darkPixelCount, '(' + j + ' of ' + inputs.length + ')')
+    } else {
+      console.log('pass', filename, darkPixelCount, '(' + j + ' of ' + inputs.length + ')')
+    }
+  })
+
+  console.log('Deleted ' + deletedCount + ' bad images.')
+})
+

@@ -13,6 +13,7 @@
   "dependencies": {
     "geojson-stream": "0.0.1",
     "hex-rgb": "^1.0.0",
+    "jpeg-js": "^0.2.0",
     "mbtiles": "^0.8.2",
     "minimist": "^1.2.0",
     "pngjs": "^2.2.0",

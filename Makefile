@@ -67,6 +67,8 @@ data/images: data/sample-filtered.txt
 
 .PHONY: prune-labels
 prune-labels: data/sample-filtered.txt
+	# Iterate through label images, and delete any for which there is no
+	# corresponding satellite image
 	cat data/sample-filtered.txt | \
 		cut -d' ' -f2,3,4 | sed 's/ /-/g' > data/labels/color/include.txt
 	find data/labels/color -name *.png | grep -Fvf data/labels/color/include.txt | xargs rm
