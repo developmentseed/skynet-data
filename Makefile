@@ -25,7 +25,7 @@ download-osm-tiles: data/osm/$(QA_TILES).mbtiles
 # Make a list of all the tiles within BBOX
 data/all_tiles.txt:
 	if [[ $(DATA_TILES) == mbtiles* ]] ; then \
-		tippecanoe-enumerate $^ | node lib/read-sample.js --bbox='$(BBOX)' > $@ ; \
+		tippecanoe-enumerate $(subst mbtiles://./,,$(DATA_TILES)) | node lib/read-sample.js --bbox='$(BBOX)' > $@ ; \
 		else echo "$(DATA_TILES) is not an mbtiles source: you will need to create data/all_tiles.txt manually." && exit 1 ; \
 		fi
 

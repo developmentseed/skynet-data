@@ -7,12 +7,14 @@ var split = require('split')
 var argv = require('minimist')(process.argv.slice(2), {
   default: {
     visuallyBlack: 40,
-    threshold: 0.95
+    blackThreshold: 0.95,
+    visuallyWhite: 220,
+    whiteThreshold: 0.50
   },
   boolean: ['dryrun']
 })
 
-// Delete images in which X% of pixels are "visually black"
+// Delete images in which X% of pixels are "visually black" or "visually white"
 
 console.log(argv)
 var inputs = []
@@ -29,12 +31,17 @@ process.stdin.pipe(split())
     var rawImageData = jpeg.decode(jpegData, true) // return as Uint8Array
     var data = rawImageData.data
     var darkPixelCount = 0
+    var lightPixelCount = 0
     for (var i = 0; i < data.length; i++) {
       if (Math.max(data[i], data[i + 1], data[i + 2]) < argv.visuallyBlack) {
         darkPixelCount++
       }
+      if (Math.min(data[i], data[i + 1], data[i + 2]) > argv.visuallyWhite) {
+        lightPixelCount++
+      }
     }
-    if (darkPixelCount >= (data.length / 4 * argv.threshold)) {
+    if (darkPixelCount >= (data.length / 4 * argv.blackThreshold) ||
+        lightPixelCount >= (data.length / 4 * argv.whiteThreshold)) {
       deletedCount++
       if (!argv.dryrun) {
         fs.unlinkSync(filename)
@@ -47,4 +54,3 @@ process.stdin.pipe(split())
 
   console.log('Deleted ' + deletedCount + ' bad images.')
 })
-
