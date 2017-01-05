@@ -11,8 +11,11 @@ if (!argv.labels) {
   process.exit()
 }
 
-var images = argv.images ? path.resolve(argv.images) : false
-var labels = argv.labels ? path.resolve(argv.labels) : false
+var basedir = path.resolve(argv.basedir)
+
+var fullImagesPath = argv.images ? path.resolve(basedir, argv.images) : false
+var fullLabelsPath = argv.labels ? path.resolve(basedir, argv.labels) : false
+
 var start = parseInt(argv.start || 0, 10)
 var end = parseInt(argv.end || Infinity, 10)
 
@@ -25,20 +28,18 @@ readSample(argv)
 
   var filename = tile.join('-') + '.png'
 
-  if (images) {
-    var image = path.join(images, filename)
-    if (!fs.existsSync(image)) {
-      console.error('Cannot find ' + image)
-      return next()
-    }
-  }
-
-  var label = path.join(labels, filename)
-  if (labels && !fs.existsSync(label)) {
-    console.error('Cannot find ' + label)
+  if (fullImagesPath && !fs.existsSync(path.join(fullImagesPath, filename))) {
+    console.error('Cannot find image ' + filename)
     return next()
   }
 
+  if (fullLabelsPath && !fs.existsSync(fullLabelsPath, label)) {
+    console.error('Cannot find label ' + label)
+    return next()
+  }
+
+  var image = path.join('/data', argv.images, filename)
+  var label = path.join('/data', argv.labels, filename)
   this.push(image + ' ' + label + '\n')
   next()
 }))
