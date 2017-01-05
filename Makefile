@@ -81,16 +81,18 @@ data/train.txt: data/sample-filtered.txt data/labels/grayscale data/images
 	cat data/sample-filtered.txt | \
 		./slice --start 0 \
 			--end $$(($$(cat data/sample-filtered.txt | wc -l) * 4 / 5)) \
-			--labels $$(cd data && pwd -P)/labels/grayscale \
-			--images $$(cd data && pwd -P)/images > $@
+			--basedir $$(cd data && pwd -P) \
+			--labels labels/grayscale \
+			--images images > $@
 
 data/val.txt: data/sample-filtered.txt data/labels/grayscale data/images
 	cat data/sample-filtered.txt | \
 		./slice \
 			--start $$(($$(cat data/sample-filtered.txt | wc -l) * 4 / 5)) \
 			--end Infinity \
-			--labels $$(cd data && pwd -P)/labels/grayscale \
-			--images $$(cd data && pwd -P)/images > $@
+			--basedir $$(cd data && pwd -P) \
+			--labels labels/grayscale \
+			--images images > $@
 
 .PHONY: all
 all: data/train.txt data/val.txt
