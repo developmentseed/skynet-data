@@ -65,6 +65,13 @@ data/images: data/sample-filtered.txt
 	mkdir -p $@
 	cat data/sample-filtered.txt | ./download-images $(IMAGE_TILES) $@
 
+.PHONY: remove-bad-images
+remove-bad-images: data/sample-filtered.txt
+	# Delete satellite images that are too black or too white
+	# Afterwards, update the text file so we don't look for these later
+	ls data/images/* | \
+	  ./remove-bad-images
+
 .PHONY: prune-labels
 prune-labels: data/sample-filtered.txt
 	# Iterate through label images, and delete any for which there is no
@@ -76,23 +83,18 @@ prune-labels: data/sample-filtered.txt
 	touch data/labels/label-counts.txt
 	touch data/sample-filtered.txt
 
-# Make train & val lists, with 80% of data -> train, 20% -> val
-data/train.txt: data/sample-filtered.txt data/labels/grayscale data/images
+# Create image pair text files, this will drop references for images which aren't found
+data/image-pairs.txt: data/sample-filtered.txt data/labels/grayscale data/images
 	cat data/sample-filtered.txt | \
-		./slice --start 0 \
-			--end $$(($$(cat data/sample-filtered.txt | wc -l) * 4 / 5)) \
-			--basedir $$(cd data && pwd -P) \
+		./list-image-pairs --basedir $$(cd data && pwd -P) \
 			--labels labels/grayscale \
 			--images images > $@
 
-data/val.txt: data/sample-filtered.txt data/labels/grayscale data/images
-	cat data/sample-filtered.txt | \
-		./slice \
-			--start $$(($$(cat data/sample-filtered.txt | wc -l) * 4 / 5)) \
-			--end Infinity \
-			--basedir $$(cd data && pwd -P) \
-			--labels labels/grayscale \
-			--images images > $@
+# Make train & val lists, with 80% of data -> train, 20% -> val
+data/train.txt: data/image-pairs.txt
+	split -l $$(($$(cat data/image-pairs.txt | wc -l) * 4 / 5)) data/image-pairs.txt
+	mv xaa $@
+	mv xab data/val.txt
 
 .PHONY: all
 all: data/train.txt data/val.txt

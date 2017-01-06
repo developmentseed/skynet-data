@@ -7,7 +7,7 @@ var through = require('through2')
 var argv = require('minimist')(process.argv.slice(2))
 
 if (!argv.labels) {
-  console.error('Usage: cat sample.txt | ./slice --labels path/to/labels [--images path/to/images] [--start START_INDEX=0] [--end END_INDEX=Infinity] [--label-ratio RATIO]')
+  console.error('Usage: cat sample.txt | ./slice --labels path/to/labels [--images path/to/images] [--label-ratio RATIO]')
   process.exit()
 }
 
@@ -16,16 +16,8 @@ var basedir = path.resolve(argv.basedir)
 var fullImagesPath = argv.images ? path.resolve(basedir, argv.images) : false
 var fullLabelsPath = argv.labels ? path.resolve(basedir, argv.labels) : false
 
-var start = parseInt(argv.start || 0, 10)
-var end = parseInt(argv.end || Infinity, 10)
-
-var count = 0
-
 readSample(argv)
 .pipe(through.obj(function (tile, _, next) {
-  count++
-  if (count < start || count >= end) { return next() }
-
   var filename = tile.join('-') + '.png'
 
   if (fullImagesPath && !fs.existsSync(path.join(fullImagesPath, filename))) {
@@ -44,4 +36,3 @@ readSample(argv)
   next()
 }))
 .pipe(process.stdout)
-
