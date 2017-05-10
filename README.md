@@ -55,6 +55,7 @@ Make a full training set according to these params with `make all`.
 
 ### Install
 
+ - Install [NodeJS v4.6.2](https://nodejs.org/dist/v4.6.2/)
  - Install [tippecanoe](https://github.com/mapbox/tippecanoe)
  - Clone this repo and run `npm install`.  (Note that this includes a
    node-mapnik install, which sometimes has trouble building in bleeding-edge
