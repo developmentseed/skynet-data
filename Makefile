@@ -10,7 +10,6 @@ LABEL_RATIO ?= 0
 ZOOM_LEVEL ?= 17
 
 # Download OSM QA tiles
-
 .PHONY: download-osm-tiles
 download-osm-tiles: data/osm/$(QA_TILES).mbtiles
 	echo "Downloading $(QA_TILES) extract."
