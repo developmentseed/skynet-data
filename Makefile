@@ -10,6 +10,11 @@ LABEL_RATIO ?= 0
 ZOOM_LEVEL ?= 17
 
 # Download OSM QA tiles
+
+.PHONY: download-osm-tiles
+download-osm-tiles: data/osm/$(QA_TILES).mbtiles
+	echo "Downloading $(QA_TILES) extract."
+
 data/osm/planet.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz | gunzip > $@
@@ -18,9 +23,6 @@ data/osm/%.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
-.PHONY: download-osm-tiles
-download-osm-tiles: data/osm/$(QA_TILES).mbtiles
-	echo "Downloading $(QA_TILES) extract."
 
 # Make a list of all the tiles within BBOX
 data/all_tiles.txt:
@@ -41,9 +43,10 @@ data/labels/color: data/sample.txt
 	mkdir -p $@
 	cp $(CLASSES) data/classes.json
 	cat data/sample.txt | \
-	  parallel --pipe --block 10K './rasterize-labels $(DATA_TILES) $(CLASSES) $@'
+	  parallel --pipe --block 10K './rasterize-labels $(DATA_TILES) $(CLASSES) $@ $(LABEL_RATIO)'
 
 data/labels/label-counts.txt: data/labels/color data/sample.txt
+	#If LABEL_RATIO != 0, this will drop references for images which aren't found
 	cat data/sample.txt | \
 		parallel --pipe --block 10K --group './label-counts $(CLASSES) data/labels/color' > $@
 	# Also generate label-stats.csv
