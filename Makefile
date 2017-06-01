@@ -10,6 +10,10 @@ LABEL_RATIO ?= 0
 ZOOM_LEVEL ?= 17
 
 # Download OSM QA tiles
+.PHONY: download-osm-tiles
+download-osm-tiles: data/osm/$(QA_TILES).mbtiles
+	echo "Downloading $(QA_TILES) extract."
+
 data/osm/planet.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz | gunzip > $@
@@ -18,9 +22,6 @@ data/osm/%.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
-.PHONY: download-osm-tiles
-download-osm-tiles: data/osm/$(QA_TILES).mbtiles
-	echo "Downloading $(QA_TILES) extract."
 
 # Make a list of all the tiles within BBOX
 data/all_tiles.txt:
