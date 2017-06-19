@@ -25,8 +25,8 @@ readSample(argv)
     return next()
   }
 
-  if (fullLabelsPath && !fs.existsSync(fullLabelsPath, label)) {
-    console.error('Cannot find label ' + label)
+  if (fullLabelsPath && !fs.existsSync(path.join(fullLabelsPath, filename))) {
+    console.error('Cannot find label ' + filename)
     return next()
   }
 
