@@ -58,6 +58,7 @@ Make a full training set according to these params with `make all`.
  - Install [NodeJS v4.6.2](https://nodejs.org/dist/v4.6.2/)
  - Install [tippecanoe](https://github.com/mapbox/tippecanoe)
  - Install [GNU Parallel](https://www.gnu.org/software/parallel/)
+ - Install [shuf](https://www.gnu.org/software/coreutils/)
  - Clone this repo and run `npm install`.  (Note that this includes a
    node-mapnik install, which sometimes has trouble building in bleeding-edge
    versions of node.)
@@ -90,4 +91,3 @@ Heads up: the default, Mapbox Satellite, will need you to set the
 
 Preview the generated data by opening up `preview.html?accessToken=<mapbox
 access token>&prefix=/path/to/data` in a local web server.
-

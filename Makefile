@@ -93,7 +93,9 @@ data/image-pairs.txt: data/sample-filtered.txt data/labels/grayscale data/images
 
 # Make train & val lists, with 80% of data -> train, 20% -> val
 data/train.txt: data/image-pairs.txt
-	split -l $$(($$(cat data/image-pairs.txt | wc -l) * 4 / 5)) data/image-pairs.txt
+	shuf data/image-pairs.txt > temp.txt
+	split -l $$(($$(cat data/image-pairs.txt | wc -l) * 4 / 5)) temp.txt
+	rm temp.txt
 	mv xaa $@
 	mv xab data/val.txt
 
