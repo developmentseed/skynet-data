@@ -14,6 +14,7 @@ var writeTile = require('./lib/write-tile')
 var input = argv._[0] // usually an osm qa tiles mbtiles file
 var layers = require(path.resolve(argv._[1])) // json file defining classes
 var output = argv._[2] // output dir
+var labelRatio = argv._[3]
 
 init(input, style(layers), function (err, vector) {
   if (err) { throw err }
@@ -23,7 +24,13 @@ init(input, style(layers), function (err, vector) {
   readSample(argv)
   .on('data', function (tile) {
     q.defer(function (done) {
-      writeTile(output, vector, tile, done)
+      //skip images which are blank if the label ratio > 0
+      //helps with case where images with a label_ratio>0 are sparse
+      if(labelRatio > 0){
+        writeTile(output, vector, tile, done, true)
+      }else{
+        writeTile(output, vector, tile, done, false)
+      }
     })
   })
   .on('end', function () {
