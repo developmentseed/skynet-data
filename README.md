@@ -42,7 +42,7 @@ BBOX ?= '-180,-85,180,85'
 TRAIN_SIZE=1000
 # define label classes output
 CLASSES=classes/roads-buildings.json
-# Filter out tiles whose ratio of labeled to unlabeled pixels is strictlyless than
+# Filter out tiles whose ratio of labeled to unlabeled pixels is strictly less than
 # the given ratio.  Default excludes images that are all background.
 LABEL_RATIO ?= 0
 # set this to a zoom higher than the data tiles' max zoom to get overzoomed label images
