@@ -16,6 +16,10 @@ WORKDIR /workdir
 ADD package.json /workdir/package.json
 RUN npm install
 
+# downgrade to non-privileged user
+RUN groupadd -g 1000 -r data && useradd --no-log-init -r -u 1000 -g data data
+USER data
+
 ADD . /workdir
 
 ENTRYPOINT ["make"]
