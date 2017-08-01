@@ -1,0 +1,8 @@
+version: '2'
+services:
+  data:
+    build: .
+    volumes:
+    - ./data:/workdir/data
+    env_file:
+    - docker.env
