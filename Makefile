@@ -94,11 +94,11 @@ data/image-pairs.txt: data/sample-filtered.txt data/labels/grayscale data/images
 
 # Make train & val lists, with 80% of data -> train, 20% -> val
 data/train.txt: data/image-pairs.txt
-	shuf data/image-pairs.txt > temp.txt
-	split -l $$(($$(cat data/image-pairs.txt | wc -l) * 4 / 5)) temp.txt
-	rm temp.txt
-	mv xaa $@
-	mv xab data/val.txt
+	shuf data/image-pairs.txt > data/temp.txt
+	split -l $$(($$(cat data/image-pairs.txt | wc -l) * 4 / 5)) data/temp.txt data/x
+	rm data/temp.txt
+	mv data/xaa $@
+	mv data/xab data/val.txt
 
 .PHONY: all
 all: data/train.txt data/val.txt
