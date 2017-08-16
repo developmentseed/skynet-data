@@ -3,6 +3,7 @@ services:
   data:
     build: .
     volumes:
-    - ./data:/workdir/data
+    - ./:/workdir
+    - /workdir/node_modules
     env_file:
     - docker.env
