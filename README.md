@@ -7,12 +7,17 @@ images where each color represents some category derived from OSM features.
 Being map tiles, it's then pretty easy to match these up with the desired input
 imagery.
 
- - OSM QA tile data [copyright OpenStreetMap contributors](http://www.openstreetmap.org/copyright) and licensed under [ODbL](http://opendatacommons.org/licenses/odbl/)
- - Mapbox Satellite data can be [traced for noncommercial purposes](https://www.mapbox.com/tos/#[YmtMIywt]).
+ - OSM QA tile data
+   [copyright OpenStreetMap contributors](http://www.openstreetmap.org/copyright)
+   and licensed under
+   [ODbL](http://opendatacommons.org/licenses/odbl/)
+ - Mapbox Satellite data can be
+   [traced for noncommercial purposes](https://www.mapbox.com/tos/#[YmtMIywt]).
 
 ## Quick Start
 
-The easiest way to use this is via the [`developmentseed/skynet-data` docker image](https://hub.docker.com/r/developmentseed/skynet-data):
+The easiest way to use this is via the
+[`developmentseed/skynet-data` docker image](https://hub.docker.com/r/developmentseed/skynet-data):
 
 ```sh
 docker run -d -v /path/to/output/dir:/workdir/data developmentseed/skynet-data download-osm-tiles
@@ -20,14 +25,20 @@ docker run -d -v /path/to/output/dir:/workdir/data developmentseed/skynet-data d
 docker run -d -v /path/to/output/dir:/workdir/data -e MapboxAccessToken=YOUR_TOKEN developmentseed/skynet-data
 ```
 
-The first line downloads the OSM QA tiles to `/path/to/output/dir/osm/planet.mbtiles`.  If you've already got that file on your machine, you can skip this.
+The first line downloads the OSM QA tiles to
+`/path/to/output/dir/osm/planet.mbtiles`.  If you've already got that
+file on your machine, you can skip this.
 
-The second builds a training set using the default options (Roads features from OSM QA tiles, images from Mapbox Satellite).  To change the data sources, training set size and other options, send the relevant environment variables (see below) into `docker run` with `-e VAR=value`.
+The second builds a training set using the default options (Roads
+features from OSM QA tiles, images from Mapbox Satellite).  To change
+the data sources, training set size and other options, send the
+relevant environment variables (see below) into `docker run` with `-e
+VAR=value`.
 
 ## Variables
 
-The `make` commands below work off the following variables (with defaults as
-listed):
+The `make` commands below work off the following variables (with
+defaults as listed):
 
 ```
 # location of image files
