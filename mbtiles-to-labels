@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var path = require('path')
+var tilereduce = require('tile-reduce')
+var argv = require('minimist')(process.argv.slice(2))
+
+var tilesRaw = fs.readFileSync(argv._[1]).toString()
+var tiles = tilesRaw.split('\n')
+  .map(tile => tile.split(' '))
+	.map(tile => [+tile[2], +tile[3], +tile[1]])
+
+tilereduce({
+  zoom: +argv._[2],
+  map: path.join(__dirname, 'lib/map.js'),
+  maxWorkers: 3,
+  mapOptions: {
+    pixelsPerDegree: 360 / (256 * Math.pow(2, +argv._[2]))
+  },
+  sources: [
+    {
+      name: 'osmdata',
+      mbtiles: path.join(__dirname, argv._[0]),
+      layers: ['buildingsgeojson']
+    }
+  ],
+  //tiles: tiles
+})
+// .on('map', (tile) => console.log(JSON.stringify(tile)))

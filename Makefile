@@ -35,16 +35,21 @@ data/all_tiles.txt:
 data/sample.txt: data/all_tiles.txt
 	./sample $^ $(TRAIN_SIZE) $(ZOOM_LEVEL) > $@
 
-# Rasterize the data tiles to bitmaps where each pixel is colored according to
-# the class defined in CLASSES
-# (no class / background => black)
-data/labels/color: data/sample.txt
-	mkdir -p $@
-	cp $(CLASSES) data/classes.json
-	cat data/sample.txt | \
-	  parallel --pipe --block 10K './rasterize-labels $(DATA_TILES) $(CLASSES) $@ $(LABEL_RATIO)'
+# Create label maps for TensorFlow input: https://github.com/tensorflow/models/blob/master/object_detection/g3doc/using_your_own_dataset.md
+data/labels/labels.txt: data/sample.txt
+  mkdir -p data/labels
+	tippecanoe-decode -f $(DATA_TILES) > temp.geojson
+	cat temp.geojson | grep building > temp.ndgeojson
+	cat temp.ndgeojson| jq --slurp '{ "type": "FeatureCollection", "features": . }' > temp.geojson
+	tippecanoe -o output.mbtiles -z $(ZOOM_LEVEL) -Z $(ZOOM_LEVEL) temp.geojson
+	mbtiles-to-labels output.mbtiles data/sample.txt $(ZOOM_LEVEL) > $@
+# data/labels/color: data/sample.txt
+# 	mkdir -p $@
+# 	cp $(CLASSES) data/classes.json
+# 	cat data/sample.txt | \
+# 	  parallel --pipe --block 10K './rasterize-labels $(DATA_TILES) $(CLASSES) $@ $(LABEL_RATIO)'
 
-data/labels/label-counts.txt: data/labels/color data/sample.txt
+data/labels/label-counts.txt: data/labels/labels.txt data/sample.txt
 	#If LABEL_RATIO != 0, this will drop references for images which aren't found
 	cat data/sample.txt | \
 		parallel --pipe --block 10K --group './label-counts $(CLASSES) data/labels/color' > $@
