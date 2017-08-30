@@ -21,8 +21,17 @@ flags.DEFINE_string('output_dir', '', 'Path to directory to output TFRecords.')
 flags.DEFINE_string('label_file', '', 'Path to file for labels/annotations')
 FLAGS = flags.FLAGS
 
+# seems like smaller labels don't work with this
+# https://github.com/tensorflow/models/issues/1907
+def check_size(box):
+    height = box[3] - box[1]
+    width = box[2] - box[0]
+    if height < 10 or width < 10:
+        return False
+    else:
+        return True
+
 def create_tf_example(filename, a_dict):
-    print('Writing record for %s' % filename)
     bn = os.path.basename(filename)
     key = os.path.splitext(bn)[0]
 
@@ -43,15 +52,16 @@ def create_tf_example(filename, a_dict):
 
     # find the matching annotation(s) and add them to the above arrays
     bb = json.loads(a_dict.get(key, '[]'))
-    if bb:
-        for box in bb:
+    for box in bb:
+        if check_size(box):
             xmins.append(box[0] / width)
             ymins.append(box[1] / height)
             xmaxs.append(box[2] / width)
             ymaxs.append(box[3] / height)
             classes_text.append(b'Building')
             classes.append(1)
-    else:
+    # if we didn't add anything, don't create a record
+    if not classes:
         return False
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
@@ -72,12 +82,16 @@ def create_tf_example(filename, a_dict):
 
 
 def write_records(examples, output_file, a_dict):
+    count = 0
+    writer = tf.python_io.TFRecordWriter(output_file)
     for example in examples:
-        writer = tf.python_io.TFRecordWriter(output_file)
         tf_example = create_tf_example(example, a_dict)
         if tf_example:
             writer.write(tf_example.SerializeToString())
-        writer.close()
+            count += 1
+
+    print('Wrote %d records' % count)
+    writer.close()
 
 
 def main(_):
@@ -94,8 +108,6 @@ def main(_):
     num_train = int(0.7 * num_examples)
     train_examples = image_files[:num_train]
     val_examples = image_files[num_train:]
-    print('%d training and %d validation examples.' %
-               (len(train_examples), len(val_examples)))
 
     # read in the annotations, create a dict with z-x-y as the key
     # bounding boxes as the values
