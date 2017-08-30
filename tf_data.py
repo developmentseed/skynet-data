@@ -29,7 +29,7 @@ FLAGS = flags.FLAGS
 def check_size(box):
     height = box[3] - box[1]
     width = box[2] - box[0]
-    if height < 10 or width < 10:
+    if height < 8 or width < 8:
         return False
     else:
         return True
@@ -72,12 +72,11 @@ def create_tf_example(filename, draw_path, a_dict):
             draw = ImageDraw.Draw(source_img)
             draw.rectangle(((box[0], box[1]), (box[2], box[3])), outline='red')
 
-    if source_img:
-        source_img.save(os.path.join(draw_path, bn), 'PNG')
-
     # if we didn't add anything, don't create a record
     if not classes:
         return False
+    else:
+        source_img.save(os.path.join(draw_path, bn), 'PNG')
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
       'image/height': dataset_util.int64_feature(height),
@@ -118,7 +117,7 @@ def main(_):
 
     # Test images are not included in the downloaded data set, so we do
     # our own split.
-    random.seed(42)
+    random.seed(41)
     random.shuffle(image_files)
     num_examples = len(image_files)
     num_train = int(0.7 * num_examples)
