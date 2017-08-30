@@ -15,7 +15,8 @@ tilereduce({
   map: path.join(__dirname, 'lib/map.js'),
   maxWorkers: 3,
   mapOptions: {
-    pixelsPerDegree: 360 / (256 * Math.pow(2, +argv._[2]))
+    pixelsPerDegree: 360 / (256 * Math.pow(2, +argv._[2])),
+    pixelBuffer: 3
   },
   sources: [
     {
