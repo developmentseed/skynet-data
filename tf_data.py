@@ -4,7 +4,7 @@ Usage:
   python tf_data.py \
     --label_file=data/labels/labels.txt \
     --data_dir=school_tiles \
-    --output_file=tf_output.record
+    --output_file=tf_output
 """
 
 import sys
@@ -69,8 +69,6 @@ def create_tf_example(filename, a_dict):
 
 
 def main(_):
-    writer = tf.python_io.TFRecordWriter(FLAGS.output_dir)
-
     # get all image paths for the source data
     cwd = os.getcwd()
     globber = os.path.join(cwd, FLAGS.data_dir, '*.png')
@@ -100,14 +98,16 @@ def main(_):
     val_output_path = os.path.join(FLAGS.output_dir, 'building_val.record')
 
     for example in train_examples:
+        writer = tf.python_io.TFRecordWriter(train_output_path)
         tf_example = create_tf_example(example, a_dict)
         writer.write(tf_example.SerializeToString())
+        writer.close()
 
     for example in val_examples:
+        writer = tf.python_io.TFRecordWriter(val_output_path)
         tf_example = create_tf_example(example, a_dict)
         writer.write(tf_example.SerializeToString())
-
-    writer.close()
+        writer.close()
 
 
 if __name__ == '__main__':
