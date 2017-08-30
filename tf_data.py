@@ -43,13 +43,16 @@ def create_tf_example(filename, a_dict):
 
     # find the matching annotation(s) and add them to the above arrays
     bb = json.loads(a_dict.get(key, '[]'))
-    for box in bb:
-        xmins.append(box[0] / width)
-        ymins.append(box[1] / height)
-        xmaxs.append(box[2] / width)
-        ymaxs.append(box[3] / height)
-        classes_text.append(b'Building')
-        classes.append(1)
+    if bb:
+        for box in bb:
+            xmins.append(box[0] / width)
+            ymins.append(box[1] / height)
+            xmaxs.append(box[2] / width)
+            ymaxs.append(box[3] / height)
+            classes_text.append(b'Building')
+            classes.append(1)
+    else:
+        return False
 
     tf_example = tf.train.Example(features=tf.train.Features(feature={
       'image/height': dataset_util.int64_feature(height),
@@ -66,6 +69,15 @@ def create_tf_example(filename, a_dict):
       'image/object/class/label': dataset_util.int64_list_feature(classes),
     }))
     return tf_example
+
+
+def write_records(examples, output_file, a_dict):
+    for example in examples:
+        writer = tf.python_io.TFRecordWriter(output_file)
+        tf_example = create_tf_example(example, a_dict)
+        if tf_example:
+            writer.write(tf_example.SerializeToString())
+        writer.close()
 
 
 def main(_):
@@ -97,17 +109,8 @@ def main(_):
     train_output_path = os.path.join(FLAGS.output_dir, 'building_train.record')
     val_output_path = os.path.join(FLAGS.output_dir, 'building_val.record')
 
-    for example in train_examples:
-        writer = tf.python_io.TFRecordWriter(train_output_path)
-        tf_example = create_tf_example(example, a_dict)
-        writer.write(tf_example.SerializeToString())
-        writer.close()
-
-    for example in val_examples:
-        writer = tf.python_io.TFRecordWriter(val_output_path)
-        tf_example = create_tf_example(example, a_dict)
-        writer.write(tf_example.SerializeToString())
-        writer.close()
+    write_records(train_examples, train_output_path, a_dict)
+    write_records(val_examples, val_output_path, a_dict)
 
 
 if __name__ == '__main__':
