@@ -30,7 +30,7 @@ def create_tf_example(filename, a_dict):
     width = 256
     with tf.gfile.GFile(filename, 'rb') as fid:
         encoded_image_data = fid.read()
-    image_format = b'png'
+    image_format = b'jpeg'
 
     xmins = [] # List of normalized left x coordinates in bounding box (1 per box)
     xmaxs = [] # List of normalized right x coordinates in bounding box
