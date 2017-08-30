@@ -4,7 +4,8 @@ Usage:
   python tf_data.py \
     --label_file=data/labels/labels.txt \
     --data_dir=school_tiles \
-    --output_file=tf_output
+    --output_file=tf_output \
+    --inspection_dir=inspect
 """
 
 import sys
@@ -14,11 +15,13 @@ import random
 import tensorflow as tf
 from glob import glob
 from lib import dataset_util
+from PIL import Image, ImageDraw
 
 flags = tf.app.flags
 flags.DEFINE_string('data_dir', '', 'Root directory to raw image dataset.')
 flags.DEFINE_string('output_dir', '', 'Path to directory to output TFRecords.')
-flags.DEFINE_string('label_file', '', 'Path to file for labels/annotations')
+flags.DEFINE_string('label_file', '', 'Path to file for labels/annotations.')
+flags.DEFINE_string('inspection_dir', '', 'Path to director to output labelled images for inspection.')
 FLAGS = flags.FLAGS
 
 # seems like smaller labels don't work with this
@@ -31,7 +34,7 @@ def check_size(box):
     else:
         return True
 
-def create_tf_example(filename, a_dict):
+def create_tf_example(filename, draw_path, a_dict):
     bn = os.path.basename(filename)
     key = os.path.splitext(bn)[0]
 
@@ -52,14 +55,26 @@ def create_tf_example(filename, a_dict):
 
     # find the matching annotation(s) and add them to the above arrays
     bb = json.loads(a_dict.get(key, '[]'))
+    source_img = False
+    if bb:
+        source_img = Image.open(filename)
     for box in bb:
         if check_size(box):
+            # add bounding box information to eventual record data
             xmins.append(box[0] / width)
             ymins.append(box[1] / height)
             xmaxs.append(box[2] / width)
             ymaxs.append(box[3] / height)
             classes_text.append(b'Building')
             classes.append(1)
+
+            # also draw it for visual inspection
+            draw = ImageDraw.Draw(source_img)
+            draw.rectangle(((box[0], box[1]), (box[2], box[3])), outline='red')
+
+    if source_img:
+        source_img.save(os.path.join(draw_path, bn), 'PNG')
+
     # if we didn't add anything, don't create a record
     if not classes:
         return False
@@ -81,16 +96,17 @@ def create_tf_example(filename, a_dict):
     return tf_example
 
 
-def write_records(examples, output_file, a_dict):
+def write_records(examples, output_file, inspection_path, a_dict):
     count = 0
     writer = tf.python_io.TFRecordWriter(output_file)
-    for example in examples:
-        tf_example = create_tf_example(example, a_dict)
+    for index, example in enumerate(examples):
+        print('Writing %d of %d' % (index, len(examples)))
+        tf_example = create_tf_example(example, inspection_path, a_dict)
         if tf_example:
             writer.write(tf_example.SerializeToString())
             count += 1
 
-    print('Wrote %d records' % count)
+    print('Wrote %d records. %d dropped' % (count, len(examples) - count))
     writer.close()
 
 
@@ -121,8 +137,15 @@ def main(_):
     train_output_path = os.path.join(FLAGS.output_dir, 'building_train.record')
     val_output_path = os.path.join(FLAGS.output_dir, 'building_val.record')
 
-    write_records(train_examples, train_output_path, a_dict)
-    write_records(val_examples, val_output_path, a_dict)
+    train_inspection_path = os.path.join(FLAGS.inspection_dir, 'train')
+    val_inspection_path = os.path.join(FLAGS.inspection_dir, 'val')
+    if not os.path.exists(train_inspection_path):
+        os.makedirs(train_inspection_path)
+    if not os.path.exists(val_inspection_path):
+        os.makedirs(val_inspection_path)
+
+    write_records(train_examples, train_output_path, train_inspection_path, a_dict)
+    write_records(val_examples, val_output_path, val_inspection_path, a_dict)
 
 
 if __name__ == '__main__':
