@@ -18,20 +18,20 @@ var fullLabelsPath = argv.labels ? path.resolve(basedir, argv.labels) : false
 
 readSample(argv)
 .pipe(through.obj(function (tile, _, next) {
-  var filename = tile.join('-') + '.png'
+  var filename = tile.join('-')
 
-  if (fullImagesPath && !fs.existsSync(path.join(fullImagesPath, filename))) {
+  if (fullImagesPath && !fs.existsSync(path.join(fullImagesPath, filename + '.jpg'))) {
     console.error('Cannot find image ' + filename)
     return next()
   }
 
-  if (fullLabelsPath && !fs.existsSync(path.join(fullLabelsPath, filename))) {
+  if (fullLabelsPath && !fs.existsSync(path.join(fullLabelsPath, filename + '.png'))) {
     console.error('Cannot find label ' + filename)
     return next()
   }
 
-  var image = path.join('/data', argv.images, filename)
-  var label = path.join('/data', argv.labels, filename)
+  var image = path.join('/data', argv.images, filename + '.jpg')
+  var label = path.join('/data', argv.labels, filename + '.png')
   this.push(image + ' ' + label + '\n')
   next()
 }))

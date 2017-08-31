@@ -27,9 +27,9 @@ init(input, style(layers), function (err, vector) {
       //skip images which are blank if the label ratio > 0
       //helps with case where images with a label_ratio>0 are sparse
       if(labelRatio > 0){
-        writeTile(output, vector, tile, done, true)
+        writeTile(output, vector, tile, done, true, '.png')
       }else{
-        writeTile(output, vector, tile, done, false)
+        writeTile(output, vector, tile, done, false, '.png')
       }
     })
   })

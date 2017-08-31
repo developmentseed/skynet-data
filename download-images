@@ -18,7 +18,7 @@ tilelive.load(input, function (err, source) {
   readSample(argv)
   .on('data', function (tile) {
     q.defer(function (done) {
-      writeTile(output, source, tile, done)
+      writeTile(output, source, tile, done, false, '.jpg')
     })
   })
   .on('end', function () {
