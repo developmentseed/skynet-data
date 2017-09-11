@@ -1,5 +1,9 @@
   <Style name="LAYER_ID" filter-mode="all">
     <Rule>
+      <Filter>FILTER ([mapnik::geometry_type] = 1)</Filter>
+      <MarkersSymbolizer fill="COLOR"  width="STROKE_WIDTH" height="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0" placement="point" marker-type="ellipse" allow-overlap="true" />
+    </Rule>
+    <Rule>
       <Filter>FILTER ([mapnik::geometry_type] = 2)</Filter>
       <LineSymbolizer stroke-width="STROKE_WIDTH" stroke="COLOR" stroke-gamma="0.0" />
     </Rule>
