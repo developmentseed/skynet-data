@@ -29,7 +29,7 @@ FLAGS = flags.FLAGS
 def check_size(box):
     height = box[3] - box[1]
     width = box[2] - box[0]
-    if height < 8 or width < 8:
+    if height < 25 or width < 25:
         return False
     else:
         return True
