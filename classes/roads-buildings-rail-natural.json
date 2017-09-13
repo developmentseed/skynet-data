@@ -1,0 +1,43 @@
+[{
+  "name": "Road",
+  "color": "#ffff00",
+  "stroke-width": "5",
+  "filter": "[highway].match('.+') and not ([tunnel] = 'yes' or [tunnel]='true')",
+  "sourceLayer": "osm"
+}, {
+  "name": "Building",
+  "color": "#ff0000",
+  "stroke-width": "1",
+  "filter": "[building].match('.+')",
+  "sourceLayer": "osm"
+}, {
+  "name": "Rail",
+  "color": "#ff00ff",
+  "stroke-width": "5",
+  "filter": "[railway].match('.+') and not ([tunnel] = 'yes' or [tunnel]='true')",
+  "sourceLayer": "osm"
+}, {
+  "name": "Wood",
+  "color": "#006600",
+  "stroke-width": "1",
+  "filter": "([natural] = 'wood') or ([landuse] = 'forest')",
+  "sourceLayer": "osm"
+}, {
+  "name": "ClearedLand",
+  "color": "#00ff00",
+  "stroke-width": "1",
+  "filter": "([landuse] = 'grass') or ([natural] = 'grassland') or ([leisure] = 'park') or ([leisure] = 'recreation_ground') or ([leisure] = 'pitch') or ([landuse] = 'meadow')",
+  "sourceLayer": "osm"
+}, {
+  "name": "River",
+  "color": "#000066",
+  "stroke-width": "5",
+  "filter": "([waterway] = 'river') or ([waterway] = 'stream') or ([waterway] = 'canal') or ([waterway] = 'drain') or ([waterway] = 'ditch')",
+  "sourceLayer": "osm"
+}, {
+  "name": "OpenWater",
+  "color": "#0000ff",
+  "stroke-width": "1",
+  "filter": "[natural] = 'water'",
+  "sourceLayer": "osm"
+}]
