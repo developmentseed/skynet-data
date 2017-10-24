@@ -7,27 +7,72 @@ images where each color represents some category derived from OSM features.
 Being map tiles, it's then pretty easy to match these up with the desired input
 imagery.
 
- - OSM QA tile data [copyright OpenStreetMap contributors](http://www.openstreetmap.org/copyright) and licensed under [ODbL](http://opendatacommons.org/licenses/odbl/)
- - Mapbox Satellite data can be [traced for noncommercial purposes](https://www.mapbox.com/tos/#[YmtMIywt]).
+ - OSM QA tile data
+   [copyright OpenStreetMap contributors](http://www.openstreetmap.org/copyright)
+   and licensed under
+   [ODbL](http://opendatacommons.org/licenses/odbl/)
+ - Mapbox Satellite data can be
+   [traced for noncommercial purposes](https://www.mapbox.com/tos/#[YmtMIywt]).
 
 ## Quick Start
 
-The easiest way to use this is via the [`developmentseed/skynet-data` docker image](https://hub.docker.com/r/developmentseed/skynet-data):
+### Pre-built docker image
 
-```sh
-docker run -d -v /path/to/output/dir:/workdir/data developmentseed/skynet-data download-osm-tiles
+The easiest way to use this is via the
+[`developmentseed/skynet-data` docker image](https://hub.docker.com/r/developmentseed/skynet-data):
 
-docker run -d -v /path/to/output/dir:/workdir/data -e MapboxAccessToken=YOUR_TOKEN developmentseed/skynet-data
+First, create a `docker.env` file with the contents including your MapboxAccessToken:
+
+```
+MapboxAccessToken=YOUR_TOKEN
 ```
 
-The first line downloads the OSM QA tiles to `/path/to/output/dir/osm/planet.mbtiles`.  If you've already got that file on your machine, you can skip this.
+Then run:
 
-The second builds a training set using the default options (Roads features from OSM QA tiles, images from Mapbox Satellite).  To change the data sources, training set size and other options, send the relevant environment variables (see below) into `docker run` with `-e VAR=value`.
+```sh
+docker run -d -v /path/to/output/dir:/workdir/data --env-file docker.env developmentseed/skynet-data download-osm-tiles
+
+docker run -d -v /path/to/output/dir:/workdir/data --env-file docker.env developmentseed/skynet-data
+```
+
+The first line downloads the OSM QA tiles to
+`/path/to/output/dir/osm/planet.mbtiles`.  If you've already got that
+file on your machine, you can skip this.
+
+The second builds a training set using the default options (Roads
+features from OSM QA tiles, images from Mapbox Satellite).  To change
+the data sources, training set size and other options, add the
+relevant environment variables to the `docker.env` file , one per
+line.
+
+### Local docker image
+
+You can also create the docker images yourself using
+docker-compose. Similarly to the quick-start above, make sure your
+`docker.env` file has your MapboxAccessToken and any other environment
+variables you want to set. Then run:
+
+```
+docker-compose build
+```
+
+to build your local docker image, and 
+
+```
+docker-compose run data download-osm-tiles
+docker-compose run data 
+```
+
+to download the OSM QA tiles, and run the data collection as specified
+in `docker.env`. By default the collected data will be saved into the
+`data` directory, but you can overide it by using `-v
+/path/to/output/dir:/workdir/data` after `docker-compose run data`
+similar to the pre-built instructions above.
 
 ## Variables
 
-The `make` commands below work off the following variables (with defaults as
-listed):
+The `make` commands below work off the following variables (with
+defaults as listed):
 
 ```
 # location of image files
@@ -49,7 +94,8 @@ LABEL_RATIO ?= 0
 ZOOM_LEVEL ?= 17
 ```
 
-Make a full training set according to these params with `make all`.
+You can override any of these parameters in your `docker.env` and make
+a full training set using the instructions above.
 
 ## Details
 

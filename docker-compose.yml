@@ -1,0 +1,9 @@
+version: '2'
+services:
+  data:
+    build: .
+    volumes:
+    - ./:/workdir
+    - /workdir/node_modules
+    env_file:
+    - docker.env
