@@ -30,9 +30,9 @@ MapboxAccessToken=YOUR_TOKEN
 Then run:
 
 ```sh
-docker run -d -v /path/to/output/dir:/workdir/data --env-file docker.env developmentseed/skynet-data download-osm-tiles
+docker run -v /path/to/output/dir:/workdir/data --env-file docker.env developmentseed/skynet-data download-osm-tiles
 
-docker run -d -v /path/to/output/dir:/workdir/data --env-file docker.env developmentseed/skynet-data
+docker run -v /path/to/output/dir:/workdir/data --env-file docker.env developmentseed/skynet-data
 ```
 
 The first line downloads the OSM QA tiles to
