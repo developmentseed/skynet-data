@@ -70,7 +70,7 @@
           var lonlat = [tile2long(tile[1], tile[0]), tile2lat(tile[2], tile[0])].map(function (c) { return c.toFixed(4) })
           return `
           <li data-tile="${tile.join(',')}" data-label-counts="${labelCounts}">
-            <img src="blank.gif" class="lazy" data-src="${query.images}${tile.join('-')}.png">
+            <img src="blank.gif" class="lazy" data-src="${query.images}${tile.join('-')}.jpg">
             <img src="blank.gif" class="lazy" data-src="${query.labels}${tile.join('-')}.png">
             <div>${tile} (${lonlat.reverse()})</div>
             <div>${labelCounts}</div>
