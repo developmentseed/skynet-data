@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var through = require('through2')
-var tilebelt = require('tilebelt')
+var tilebelt = require('@mapbox/tilebelt')
 var readSample = require('./lib/read-sample')
 var geojsonStream = require('geojson-stream')
 var argv = require('minimist')(process.argv.slice(2))
