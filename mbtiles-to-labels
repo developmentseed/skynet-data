@@ -2,7 +2,7 @@
 
 var fs = require('fs')
 var path = require('path')
-var tilereduce = require('tile-reduce')
+var tilereduce = require('@mapbox/tile-reduce')
 var argv = require('minimist')(process.argv.slice(2))
 
 var tilesRaw = fs.readFileSync(argv._[1]).toString()
@@ -22,7 +22,7 @@ tilereduce({
     {
       name: 'osmdata',
       mbtiles: path.join(__dirname, argv._[0]),
-      layers: ['buildingsgeojson']
+      layers: ['tempgeojson']
     }
   ],
   //tiles: tiles
