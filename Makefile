@@ -38,11 +38,11 @@ data/sample.txt: data/all_tiles.txt
 # Create label maps for TensorFlow input: https://github.com/tensorflow/models/blob/master/object_detection/g3doc/using_your_own_dataset.md
 data/labels/labels.txt: data/sample.txt
 	mkdir -p data/labels
-	tippecanoe-decode -f $(DATA_TILES) > temp.geojson
+	tippecanoe-decode -f $(subst mbtiles://./,,$(DATA_TILES)) > temp.geojson
 	cat temp.geojson | grep building > temp.ndgeojson
 	cat temp.ndgeojson| jq --slurp '{ "type": "FeatureCollection", "features": . }' > temp.geojson
 	tippecanoe -o output.mbtiles -z $(ZOOM_LEVEL) -Z $(ZOOM_LEVEL) temp.geojson
-	mbtiles-to-labels output.mbtiles data/sample.txt $(ZOOM_LEVEL) > $@
+	./mbtiles-to-labels output.mbtiles data/sample.txt $(ZOOM_LEVEL) > $@
 # data/labels/color: data/sample.txt
 # 	mkdir -p $@
 # 	cp $(CLASSES) data/classes.json
