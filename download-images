@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
+var opts = {
+  require: ['tilelive-mapnik', 'tilelive-raster', 'tilelive-vector']
+}
+
 var tilelive = require('tilelive')
+require("tilelive-modules/loader")(tilelive, opts);
 var queue = require('queue-async')
 var readSample = require('./lib/read-sample')
 var writeTile = require('./lib/write-tile')
@@ -27,4 +32,3 @@ tilelive.load(input, function (err, source) {
     })
   })
 })
-

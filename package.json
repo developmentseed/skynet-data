@@ -11,7 +11,9 @@
   "author": "Anand Thakker <vestibule@anandthakker.net> (http://anandthakker.net/)",
   "license": "ISC",
   "dependencies": {
-    "@mapbox/tile-reduce": "^3.1.1",
+    "@mapbox/tile-reduce": "3.1.1",
+    "@mapbox/tilelive-mapnik": "^1.0.0",
+    "@mapbox/tilelive-vector": "^4.0.0",
     "@turf/bbox": "^3.7.0",
     "@turf/inside": "^3.7.0",
     "geojson-stream": "0.0.1",
@@ -28,7 +30,8 @@
     "tilebelt": "^1.0.1",
     "tilejson": "^1.0.1",
     "tilelive": "^5.12.2",
-    "tilelive-vector": "^3.9.2",
+    "tilelive-modules": "^0.4.0",
+    "tilelive-raster": "^0.5.0",
     "turf-bbox-polygon": "^3.0.12"
   },
   "devDependencies": {
