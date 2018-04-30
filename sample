@@ -17,6 +17,7 @@ countLines(tiles, function (err, total) {
   fs.createReadStream(tiles)
   .pipe(split())
   .on('data', function (line) {
+    if (!line) return
     if (!sample) {
       if (zoomLevel) {
         var realZoom = parseInt(line.split(' ')[1], 10)
