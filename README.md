@@ -13,6 +13,8 @@ imagery.
    [ODbL](http://opendatacommons.org/licenses/odbl/)
  - Mapbox Satellite data can be
    [traced for noncommercial purposes](https://www.mapbox.com/tos/#[YmtMIywt]).
+   
+This repository is no longer under active development. We recommend using [Label Maker](https://github.com/developmentseed/label-maker) to prepare data instead. That repo contains [utility scripts](https://github.com/developmentseed/label-maker/blob/master/examples/skynet-train-data-prep.md) which can be used to replicate the workflow needed to prepare data for [skynet-train](https://github.com/developmentseed/skynet-train). 
 
 ## Quick Start
 
