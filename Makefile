@@ -4,7 +4,7 @@ QA_TILES ?= planet
 DATA_TILES ?= mbtiles://./data/osm/$(QA_TILES).mbtiles
 BBOX ?= '-180,-85,180,85'
 IMAGE_TILES ?= "tilejson+https://a.tiles.mapbox.com/v4/mapbox.satellite.json?access_token=$(MapboxAccessToken)"
-TRAIN_SIZE ?= 5000
+TRAIN_SIZE ?= 1000
 CLASSES ?= classes/roads.json
 LABEL_RATIO ?= 0
 ZOOM_LEVEL ?= 17
@@ -22,40 +22,38 @@ data/osm/%.mbtiles:
 	mkdir -p $(dir $@)
 	curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.country/$(notdir $@).gz | gunzip > $@
 
-
-# Make a list of all the tiles within BBOX
+# Make a list of all the tiles within BBOX at ZOOM_LEVEL
 data/all_tiles.txt:
 	if [[ $(DATA_TILES) == mbtiles* ]] ; then \
-		tippecanoe-enumerate $(subst mbtiles://./,,$(DATA_TILES)) | node lib/read-sample.js --bbox='$(BBOX)' > $@ ; \
+		node lib/cover.js --bbox='$(BBOX)' --zoom='$(ZOOM_LEVEL)' --mbtiles=$(subst mbtiles://./,,$(DATA_TILES)) > $@ ; \
 		else echo "$(DATA_TILES) is not an mbtiles source: you will need to create data/all_tiles.txt manually." && exit 1 ; \
 		fi
-
-# Make a random sample from all_tiles.txt of TRAIN_SIZE tiles, possibly
-# 'overzooming' them to zoom=ZOOM_LEVEL
-data/sample.txt: data/all_tiles.txt
-	./sample $^ $(TRAIN_SIZE) $(ZOOM_LEVEL) > $@
 
 # Rasterize the data tiles to bitmaps where each pixel is colored according to
 # the class defined in CLASSES
 # (no class / background => black)
-data/labels/color: data/sample.txt
+data/labels/color: data/all_tiles.txt
 	mkdir -p $@
 	cp $(CLASSES) data/classes.json
-	cat data/sample.txt | \
+	cat data/all_tiles.txt | \
 	  parallel --pipe --block 10K './rasterize-labels $(DATA_TILES) $(CLASSES) $@ $(LABEL_RATIO)'
 
-data/labels/label-counts.txt: data/labels/color data/sample.txt
+data/labels/label-counts.txt: data/labels/color data/all_tiles.txt
 	#If LABEL_RATIO != 0, this will drop references for images which aren't found
-	cat data/sample.txt | \
+	cat data/all_tiles.txt | \
 		parallel --pipe --block 10K --group './label-counts $(CLASSES) data/labels/color' > $@
 	# Also generate label-stats.csv
 	cat data/labels/label-counts.txt | ./label-stats > data/labels/label-stats.csv
 
-# Once we've generated label bitmaps, we can make a version of the original sample
+# Once we've generated label bitmaps, we can make a version of the original tile list
 # filtered to tiles with the ratio (pixels with non-background label)/(total pixels)
 # above the LABEL_RATIO threshold
-data/sample-filtered.txt: data/labels/label-counts.txt
+data/filtered.txt: data/labels/label-counts.txt
 	cat $^ | node lib/read-sample.js --label-ratio $(LABEL_RATIO) > $@
+
+# Make a random sample from all_tiles.txt of TRAIN_SIZE tiles
+data/sample-filtered.txt: data/filtered.txt
+	./sample $^ $(TRAIN_SIZE) > $@
 
 data/labels/grayscale: data/sample-filtered.txt
 	mkdir -p $@

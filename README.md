@@ -58,11 +58,11 @@ variables you want to set. Then run:
 docker-compose build
 ```
 
-to build your local docker image, and 
+to build your local docker image, and
 
 ```
 docker-compose run data download-osm-tiles
-docker-compose run data 
+docker-compose run data
 ```
 
 to download the OSM QA tiles, and run the data collection as specified
@@ -104,20 +104,11 @@ a full training set using the instructions above.
 ### Install
 
  - Install [NodeJS v4.6.2](https://nodejs.org/dist/v4.6.2/)
- - Install [tippecanoe](https://github.com/mapbox/tippecanoe)
  - Install [GNU Parallel](https://www.gnu.org/software/parallel/)
  - Install [shuf](https://www.gnu.org/software/coreutils/)
  - Clone this repo and run `npm install`.  (Note that this includes a
    node-mapnik install, which sometimes has trouble building in bleeding-edge
    versions of node.)
-
-### Sample available tiles
-
-`make data/sample.txt`
-
-This just does a simple random sample of the available tiles in the given
-`mbtiles` set, using `tippecanoe-enumerate`. For more intelligent filtering,
-consider using `tippecanoe-decode` to examine (geojson) contents of each tile.
 
 ### Labels
 

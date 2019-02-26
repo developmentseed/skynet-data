@@ -3,11 +3,9 @@
 var fs = require('fs')
 var exec = require('child_process').exec
 var split = require('split')
-var tilebelt = require('tilebelt')
 
 var tiles = process.argv[2]
 var trainSize = process.argv[3]
-var zoomLevel = (process.argv[4] || '').trim()
 
 var sample
 var i = -1
@@ -17,11 +15,8 @@ countLines(tiles, function (err, total) {
   fs.createReadStream(tiles)
   .pipe(split())
   .on('data', function (line) {
+    if (!line) return
     if (!sample) {
-      if (zoomLevel) {
-        var realZoom = parseInt(line.split(' ')[1], 10)
-        total = total * Math.pow(4, zoomLevel - realZoom)
-      }
       sample = []
       while (sample.length < trainSize && sample.length < total) {
         var l = Math.floor(Math.random() * total)
@@ -30,42 +25,12 @@ countLines(tiles, function (err, total) {
       sample.sort((a, b) => (a - b))
     }
 
-    if (zoomLevel) {
-      line = line.split(' ')
-      var tile = [line[2], line[3], line[1]].map(Number) // zxy -> xyz
-      var tiles = getDescendants(tile, zoomLevel)
-      tiles.forEach(function (tile) {
-        if (sample[0] === i++) {
-          console.log([line[0], tile[2], tile[0], tile[1]].join(' ')) // xyz -> file z x y
-          sample.shift()
-        }
-      })
-    } else {
-      if (sample[0] === i++) {
-        console.log(line)
-        sample.shift()
-      }
+    if (sample[0] === i++) {
+      console.log(line)
+      sample.shift()
     }
   })
 })
-
-function getDescendants (tile, zoom) {
-  var z = tile[2]
-  var tiles = [tile]
-  while (z < zoom) {
-    var c = 0
-    var nextTiles = new Array(tiles.length * 4)
-    for (var i = 0; i < tiles.length; i++) {
-      var children = tilebelt.getChildren(tiles[i])
-      for (var j = 0; j < 4; j++) {
-        nextTiles[c++] = children[j]
-      }
-    }
-    tiles = nextTiles
-    z++
-  }
-  return tiles
-}
 
 function countLines (file, cb) {
   exec('wc -l ' + file, function (err, result) {

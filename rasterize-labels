@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
+var opts = {
+  require: ['tilelive-mapnik', 'tilelive-raster', 'tilelive-vector']
+}
+
 var path = require('path')
-var Vector = require('tilelive-vector')
+var Vector = require('@mapbox/tilelive-vector')
 var tilelive = require('tilelive')
+require("tilelive-modules/loader")(tilelive, opts);
 require('mbtiles').registerProtocols(tilelive)
 var queue = require('queue-async')
 var argv = require('minimist')(process.argv.slice(2))
